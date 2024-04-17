@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakePresetLoader"><![CDATA[{
+  "useNewFormat": true
+}]]></component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2adeaa46-9ed8-460e-8684-e5340d43c597" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/TinySHA1.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/app.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/ci_map.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/common.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/compression.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/http_connection.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/http_parser_merged.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/http_request.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/http_response.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/http_server.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/json.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/logging.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/middleware.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/middleware_context.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/middlewares/cookie_parser.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/middlewares/cors.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/middlewares/session.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/middlewares/utf-8.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/mime_types.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/multipart.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/mustache.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/parser.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/query_string.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/returnable.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/routing.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/settings.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/socket_adaptors.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/task_timer.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/utility.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/version.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/include/crow/websocket.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/lib/cmake/Crow/CrowConfig.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/lib/cmake/Crow/CrowTargets.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crow/lib/cmake/Crow/Findasio.cmake" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2022" />
+    <option name="minorVersion" value="2.4" />
+  </component>
+  <component name="ProjectId" id="2fEjfIoF2npClSkfBBD45vDg4Y4" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="backend" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="backend" TARGET_NAME="backend" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="backend" RUN_TARGET_NAME="backend">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2adeaa46-9ed8-460e-8684-e5340d43c597" name="Changes" comment="" />
+      <created>1713373232936</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1713373232936</updated>
+      <workItem from="1713373234450" duration="1000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
