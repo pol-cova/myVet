@@ -1,0 +1,5 @@
+.vscode
+*.sqlite
+*.sqlitedb
+*.sqlite3
+.env
