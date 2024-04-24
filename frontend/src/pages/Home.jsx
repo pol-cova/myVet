@@ -1,6 +1,6 @@
-import React from "react";
-import { useRef, useState } from "react";
+import React, { useState } from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
+import TodayDate from "../utils/Date";
 
 function Home() {
   const [formData, setFormData] = useState({
@@ -19,29 +19,38 @@ function Home() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData); // Log form data when submitted
-    // Add your form submission logic here
-    setFormData({
-      petName: "",
-      email: "",
-      phone: "",
-      date: "",
-      time: "",
-    });
-  };
+    console.log(formData);
 
-  // Rest of the component code...
+    const { petName, email, phone, date, time } = formData;
+    const url = `http://127.0.0.1:18080/api/new/visit/${petName}/${email}/${phone}/${date}/${time}`;
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+      });
+      const data = await response.json();
+      console.log(data); // Handle response data if needed
+      alert("Cita agendada con éxito");
+      setFormData({
+        petName: "",
+        email: "",
+        phone: "",
+        date: "",
+        time: "",
+      });
+    } catch (error) {
+      console.error("Error:", error); // Handle error if needed
+      alert("Error al agendar la cita");
+    }
+  };
 
   return (
     <section className="bg-white dark:bg-gray-900">
       <div className="grid max-w-screen-xl px-4 py-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
         <div className="mr-auto place-self-center lg:col-span-7">
-          <h1
-            className="max-w-2xl mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl xl:text-6xl dark:text-white"
-            style={{ color: "#386641" }}
-          >
+          <h1 className="max-w-2xl mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl xl:text-6xl dark:text-white" style={{ color: "#386641" }}>
             Descubre una nueva forma de cuidar a tus mascotas con nosotros
           </h1>
           <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400">
@@ -82,9 +91,7 @@ function Home() {
                   required
                 />
               </div>
-              <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-                Fecha y hora de la cita
-              </label>
+              <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">Fecha y hora de la cita</label>
               <div className="flex items-center mb-3 space-x-4">
                 <div className="flex-1">
                   <input
@@ -109,7 +116,6 @@ function Home() {
                     <option value="09:00">09:00 AM</option>
                     <option value="10:00">10:00 AM</option>
                     <option value="11:00">11:00 AM</option>
-                    {/* Add more options as needed */}
                   </select>
                 </div>
               </div>
@@ -118,17 +124,13 @@ function Home() {
                 className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
                 style={{ backgroundColor: "#386641" }}
               >
-                <CalendarIcon className="inline-block w-5 h-6 mr-2" /> Agendar
-                cita
+                <CalendarIcon className="inline-block w-5 h-6 mr-2" /> Agendar cita
               </button>
             </form>
           </div>
         </div>
         <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
-          <img
-            src="src/assets/2_dog.svg"
-            alt="pet"
-          />
+          <img src="src/assets/2_dog.svg" alt="pet" />
         </div>
       </div>
     </section>
