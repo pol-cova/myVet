@@ -9,7 +9,9 @@ import {
 import React from "react";
 
 export function NavBar() {
+
   return (
+    
     <Navbar fluid rounded>
       <NavbarBrand href="/">
         <img
@@ -25,7 +27,7 @@ export function NavBar() {
         </span>
       </NavbarBrand>
       <div className="flex md:order-2">
-        <Button style={{ backgroundColor: "#386641" }}>Iniciar Sesión</Button>
+        <Button style={{ backgroundColor: "#386641" }} href="/login">Iniciar Sesión</Button>
         <NavbarToggle />
       </div>
       <NavbarCollapse>

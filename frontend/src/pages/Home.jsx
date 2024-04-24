@@ -43,6 +43,13 @@ function Home() {
     } catch (error) {
       console.error("Error:", error); // Handle error if needed
       alert("Error al agendar la cita");
+      setFormData({
+        petName: "",
+        email: "",
+        phone: "",
+        date: "",
+        time: "",
+      });
     }
   };
 
