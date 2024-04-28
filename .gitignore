@@ -4,4 +4,6 @@
 *.sqlite3
 .env
 *.db
-
+/backend/.env
+/backend/utils/
+/backend/auth/
