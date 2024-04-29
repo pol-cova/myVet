@@ -91,3 +91,8 @@ string Database::getUserToken(const string &username) {
     // Generate the JWT token
     return generateJWT(user, role, ID);
 }
+
+bool Database::insertAppointment(const string &petname, const string &date, const string &hour, const string &service,
+                                 const string &mail, const string &phone, const string &name) {
+    return false;
+}

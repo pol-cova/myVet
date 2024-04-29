@@ -1,11 +1,19 @@
 #include "crow_all.h"
 #include "sqlite3.h"
+#include <chrono>
+#include <ctime>
+#include <unordered_set> // For efficient lookup of selected hours
+#include <vector>
+#include <string>
 
 // import libraries for auth
 #include "spark/spark.cpp"
 
 // import libraries for database
 #include "core/Database.cpp"
+
+// Custom utils library
+#include "utils/AvailHours.cpp"
 
 int main()
 {
@@ -18,9 +26,9 @@ int main()
     // cors config
     cors
     .global()
-        .headers("X-Custom-Header", "Upgrade-Insecure-Requests")
-        .methods("POST"_method, "GET"_method)
-        .origin("*");
+            .headers("X-Custom-Header", "Upgrade-Insecure-Requests")
+            .methods("POST"_method, "GET"_method)
+            .origin("*");
     // clang-format on
 
     // route for check if server works
@@ -115,7 +123,65 @@ int main()
         return crow::response(200, res);
     });
 
+    // route for get available hours for the appointment
+    CROW_ROUTE(app, "/api/appointment/hours")
+    .methods("GET"_method)
+    ([](){
+        // Get available hours for today considering booked appointments
+        std::vector<std::string> availableHoursForToday = getAvailableHoursForToday();
+
+        // Construct JSON response
+        crow::json::wvalue res;
+        res["status"] = "success";
+        res["msg"] = "Available hours for today";
+
+        // Create a JSON array for hours
+        std::vector<crow::json::wvalue> hoursArray;
+        for (const auto& hour : availableHoursForToday) {
+            hoursArray.emplace_back(hour);
+        }
+        res["hours"] = std::move(hoursArray); // Move the vector into the response
+
+        return crow::response(200, res);
+    });
     // route for create a new appointment for a pet in the system
+    // Endpoint to handle appointment creation
+    CROW_ROUTE(app, "/api/appointment/create")
+            .methods("POST"_method)
+                    ([](const crow::request& req){
+                        // Parse JSON request body
+                        auto json = crow::json::load(req.body);
+                        if (!json) {
+                            return crow::response(400, "Bad Request");
+                        }
+
+                        // Extract appointment details from JSON
+                        std::string selectedHour = json["hour"].s();
+                        std::string selectedDate = json["date"].s();
+                        std::string petName = json["petName"].s();
+                        std::string phone = json["phone"].s();
+                        std::string email = json["email"].s();
+
+                        // Check if the selected hour is available
+                        if (bookedHours.find(selectedHour) != bookedHours.end()) {
+                            return crow::response(400, "Hour already booked");
+                        }
+
+                        // Book the appointment
+                        bookedHours.insert(selectedHour);
+
+                        // Store the appointment details in a database or perform any other necessary actions
+                        crow::json::wvalue res({
+                            {"status", "OK"},
+                            {"msg", "Appointment created successfully"}
+                        });
+
+                        // Respond with success message
+                        return crow::response(200,res);
+                    });
+
+
+
 
 
     //set the port, set the app to run on multiple threads, and run the app

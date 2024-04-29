@@ -845,4 +845,6 @@ CMakeFiles/backend.dir/main.cpp.o: \
   /Users/paulcontreras/Documents/GitHub/myVet/backend/include/jwt-cpp/traits/kazuho-picojson/defaults.h \
   /Users/paulcontreras/Documents/GitHub/myVet/backend/include/jwt-cpp/traits/kazuho-picojson/traits.h \
   /Users/paulcontreras/Documents/GitHub/myVet/backend/core/Database.cpp \
-  /Users/paulcontreras/Documents/GitHub/myVet/backend/core/Database.h
+  /Users/paulcontreras/Documents/GitHub/myVet/backend/core/Database.h \
+  /Users/paulcontreras/Documents/GitHub/myVet/backend/utils/AvailHours.cpp \
+  /Users/paulcontreras/Documents/GitHub/myVet/backend/utils/AvailHours.h
