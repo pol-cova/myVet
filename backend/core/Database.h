@@ -25,8 +25,13 @@ public:
         }
     }
     // db logic
+    // register users
     bool insertUser(const string &username, const string &password, const string &salt, const string &email,
                     const string &role, const string &phone, const string &name);
+    // login users
+    bool loginUser(const string &username, const string &password);
+    // get user JWT token
+    string getUserToken(const string &username);
 private:
     const char* dbFileName_;
     sqlite3* db_;

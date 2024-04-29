@@ -95,23 +95,27 @@ int main()
 
         std::string user = json_payload["user"].s();
         std::string password = json_payload["password"].s();
-        std::string employeeID = json_payload["eid"].s();
+
+        // auth logic
+        Database db("../core/app.db");
+        bool isLogged = db.loginUser(user, password);
+
+        if (!isLogged){
+            return crow::response(401, "Unauthorized");
+        }
+        // generate a JWT token
+        std::string token = db.getUserToken(user);
 
         crow::json::wvalue res({
-            {"user", user},
-            {"password", password},
-            {"Employee ID", employeeID}
+            {"status", "success"},
+            {"msg", "User logged in successfully"},
+            {"token", token}
         });
 
         return crow::response(200, res);
     });
 
-    CROW_ROUTE(app, "/api/new/visit/<string>/<string>/<string>/<string>/<string>").methods("POST"_method)
-    ([](std::string petName, std::string mail, std::string phone, std::string date, std::string hour){
-        crow::json::wvalue res({{"petName", petName}, {"mail", mail},
-        {"phone", phone}, {"date", date}, {"hour", hour}});
-	    return res;
-	});
+    // route for create a new appointment for a pet in the system
 
 
     //set the port, set the app to run on multiple threads, and run the app

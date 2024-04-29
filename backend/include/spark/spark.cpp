@@ -72,3 +72,29 @@ bool validatePassword(const string password, const string storedHash, const stri
     string inputHash = hashPassword(password, storedSalt);
     return inputHash == storedHash;
 }
+
+// Function to generate a JWT token
+string generateJWT(const string username, const string role, const string userID) {
+    // Create a new JWT builder
+    auto token = jwt::create()
+            .set_type("JWS")
+            .set_issuer("authSpark-v1")
+            .set_issued_at(std::chrono::system_clock::now());
+
+    // Create claim objects for the payload
+    jwt::claim username_claim = jwt::claim(username);
+    jwt::claim role_claim = jwt::claim(role);
+    jwt::claim userID_claim = jwt::claim(userID);
+
+    // Add payload claims to the token
+    token.set_payload_claim("username", username_claim)
+            .set_payload_claim("role", role_claim)
+            .set_payload_claim("userID", userID_claim);
+
+    // Set expiration time to 1 hour from now
+    auto expiration_time = std::chrono::system_clock::now() + std::chrono::hours(1);
+    token.set_expires_at(expiration_time);
+
+    // Sign the token with the HS256 algorithm and the secret "secret"
+    return token.sign(jwt::algorithm::hs256("secret"));
+}

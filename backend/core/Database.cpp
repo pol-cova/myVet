@@ -34,3 +34,60 @@ bool Database::insertUser(const string &username, const string &password, const 
     sqlite3_finalize(stmt);
     return true;
 }
+
+bool Database::loginUser(const string &username, const string &password) {
+    // First check if user exists
+    const char* sql = "SELECT Password, Salt FROM Users WHERE Username = ?";
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return false;
+    }
+    // Exec the query
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        std::cerr << "Error executing query: " << sqlite3_errmsg(db_) << std::endl;
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    // Get the password and salt
+    string dbPassword = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+    string dbSalt = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+    sqlite3_finalize(stmt);
+    // Validate the password
+    if (validatePassword(password, dbPassword, dbSalt)) {
+        return true;
+    }
+    // If the password is invalid
+    return false;
+}
+
+string Database::getUserToken(const string &username) {
+    // Get the user ID, Username and Role
+    const char* sql = "SELECT UserID, Username, Rol FROM Users WHERE Username = ?";
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return "";
+    }
+    // Exec the query
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        std::cerr << "Error executing query: " << sqlite3_errmsg(db_) << std::endl;
+        sqlite3_finalize(stmt);
+        return "";
+    }
+    // Get the user ID, Username and Role
+    int userID = sqlite3_column_int(stmt, 0);
+    string user = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+    string role = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+    sqlite3_finalize(stmt);
+    // convert userID to string
+    string ID = to_string(userID);
+    // Generate the JWT token
+    return generateJWT(user, role, ID);
+}
