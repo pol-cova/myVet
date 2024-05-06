@@ -3,7 +3,16 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import TodayDate from "../utils/Date";
 import ErrorAlert from "../components/Alerts.jsx";
 
+// Components from flowbite
+import { Button, Checkbox, Label, TextInput, Datepicker } from "flowbite-react";
+import { HiMail, HiPhone } from "react-icons/hi";
+import { MdOutlinePets } from "react-icons/md";
+import { FaUserAstronaut } from "react-icons/fa";
+
+
+
 function Home() {
+  const [isActive, setIsActive] = useState(true);
   const [availableHours, setAvailableHours] = useState([]);
   const [formData, setFormData] = useState({
     petName: "",
@@ -28,14 +37,19 @@ function Home() {
         .catch(error => {
           console.error('Error fetching available hours:', error);
           setAvailableHours(["No hay horas disponibles"]);
+          setIsActive(false);
         });
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'date') {
+      console.log(value); // Log the date input
+    }
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
+
     }));
   };
 
@@ -79,7 +93,11 @@ function Home() {
 
 
   return (
+      // if is active is false active a div error message
       <section className="bg-white dark:bg-gray-900">
+        <div>
+            {!isActive && <ErrorAlert message={"Por el momento el sistema de citas no esta disponible"}/>}
+        </div>
         <div className="grid max-w-screen-xl px-4 py-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
           <div className="mr-auto place-self-center lg:col-span-7">
             <h1 className="max-w-2xl mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl xl:text-6xl dark:text-white" style={{ color: "#386641" }}>
@@ -88,50 +106,54 @@ function Home() {
             <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400">
               Agenda una cita ahora, para que tu mascota reciba la mejor atención.
             </p>
-            <div className="flex flex-col ">
+            <div className="flex max-w-md flex-col gap-4">
               <form onSubmit={handleSubmit}>
-                <div className="relative">
-                  <input
+                <div className="mb-2 block">
+                  <TextInput
+                      icon={MdOutlinePets}
                       type="text"
                       name="petName"
                       placeholder="Nombre de la mascota"
-                      className="w-full border border-gray-300 rounded-lg p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-600"
                       value={formData.petName}
                       onChange={handleChange}
                       required
+                      shadow
                   />
                 </div>
-                <div className="relative">
-                  <input
+                <div className="mb-2 block">
+                  <TextInput
+                      icon={FaUserAstronaut}
                       type="text"
-                      name="petName"
+                      name="ownerName"
                       placeholder="Nombre de la dueñ@"
-                      className="w-full border border-gray-300 rounded-lg p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-600"
                       value={formData.ownerName}
                       onChange={handleChange}
                       required
+                      shadow
                   />
                 </div>
-                <div className="relative">
-                  <input
+                <div className="mb-2 block">
+                  <TextInput
+                      icon={HiMail}
                       type="email"
                       name="email"
                       placeholder="Email"
-                      className="w-full border border-gray-300 rounded-lg p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-600"
                       value={formData.email}
                       onChange={handleChange}
                       required
+                      shadow
                   />
                 </div>
-                <div className="relative">
-                  <input
+                <div className=" mb-2 block">
+                  <TextInput
+                      icon={HiPhone}
                       type="text"
                       name="phone"
                       placeholder="Celular"
-                      className="w-full border border-gray-300 rounded-lg p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-600"
                       value={formData.phone}
                       onChange={handleChange}
                       required
+                      shadow
                   />
                 </div>
                 <div className="relative">
@@ -154,11 +176,11 @@ function Home() {
                 <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">Fecha y hora de la cita</label>
                 <div className="flex items-center mb-3 space-x-4">
                   <div className="flex-1">
-                    <input
+                    <TextInput
+                        icon={CalendarIcon}
                         name="date"
                         type="date"
                         placeholder="Fecha de la Cita"
-                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-600"
                         value={formData.date}
                         onChange={handleChange}
                         min={TodayDate()} // Set the min attribute to the current date

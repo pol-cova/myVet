@@ -848,11 +848,13 @@ CMakeFiles/backend.dir/main.cpp.o: ../main.cpp \
   ../include/jwt-cpp/traits/kazuho-picojson/traits.h \
   ../core/Database.cpp \
   ../core/Database.h \
-  ../utils/AvailHours.cpp \
-  ../utils/AvailHours.h
+  ../utils/Citas.cpp \
+  ../utils/Citas.h
 
 
-../utils/AvailHours.cpp:
+../utils/Citas.h:
+
+../utils/Citas.cpp:
 
 ../include/jwt-cpp/traits/kazuho-picojson/traits.h:
 
@@ -1237,8 +1239,6 @@ CMakeFiles/backend.dir/main.cpp.o: ../main.cpp \
 /usr/local/Cellar/asio/1.28.1/include/asio/detail/deadline_timer_service.hpp:
 
 /usr/local/Cellar/asio/1.28.1/include/asio/detail/chrono_time_traits.hpp:
-
-../utils/AvailHours.h:
 
 /usr/local/Cellar/asio/1.28.1/include/asio/generic/basic_endpoint.hpp:
 

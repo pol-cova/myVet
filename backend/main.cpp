@@ -13,12 +13,13 @@
 #include "core/Database.cpp"
 
 // Custom utils library
-#include "utils/AvailHours.cpp"
+#include "utils/Citas.cpp"
 
 int main()
 {
     // crow app with CORS handler
     crow::App<crow::CORSHandler> app;
+
 
     // Customize CORS
     auto& cors = app.get_middleware<crow::CORSHandler>();
@@ -125,10 +126,18 @@ int main()
 
     // route for get available hours for the appointment
     CROW_ROUTE(app, "/api/appointment/hours")
-    .methods("GET"_method)
-    ([](){
+    .methods("GET"_method, "POST"_method)
+    ([](const crow::request& req){
+        // Parse JSON request body
+        auto json = crow::json::load(req.body);
+        if (!json) {
+            return crow::response(400, "Bad Request");
+        }
+        // Get users date
+        std::string date = json["date"].s();
+
         // Get available hours for today considering booked appointments
-        std::vector<std::string> availableHoursForToday = getAvailableHoursForToday();
+        std::vector<std::string> availableHoursForToday = Citas::getAvailableHoursForToday(date, bookedHours);
 
         // Construct JSON response
         crow::json::wvalue res;
@@ -156,11 +165,16 @@ int main()
                         }
 
                         // Extract appointment details from JSON
-                        std::string selectedHour = json["hour"].s();
-                        std::string selectedDate = json["date"].s();
+                        std::string hour = json["hour"].s();
+                        std::string date = json["date"].s();
                         std::string petName = json["petName"].s();
                         std::string phone = json["phone"].s();
                         std::string email = json["email"].s();
+                        std::string ownerName = json["ownerName"].s();
+                        std::string service = json["service"].s();
+
+                        // Check if the selected hour is available
+                        std::string selectedHour = date + " " + hour;
 
                         // Check if the selected hour is available
                         if (bookedHours.find(selectedHour) != bookedHours.end()) {
@@ -169,6 +183,14 @@ int main()
 
                         // Book the appointment
                         bookedHours.insert(selectedHour);
+
+                        //  Book the appointment into db
+                        Database db("../core/app.db");
+                        bool status = db.insertAppointment(petName, date, hour, service, email, phone, ownerName);
+
+                        if (!status){
+                            return crow::response(500, "Internal Server Error");
+                        }
 
                         // Store the appointment details in a database or perform any other necessary actions
                         crow::json::wvalue res({

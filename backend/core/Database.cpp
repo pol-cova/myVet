@@ -94,5 +94,30 @@ string Database::getUserToken(const string &username) {
 
 bool Database::insertAppointment(const string &petname, const string &date, const string &hour, const string &service,
                                  const string &mail, const string &phone, const string &name) {
-    return false;
+    const char* sql = "INSERT INTO Appointments (PetName, AppointmentDate, AppointmentDate, Email, Phone, Service, OwnerName) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return false;
+    }
+    // Bind the values
+    sqlite3_bind_text(stmt, 1, petname.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, date.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, hour.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 4, mail.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 5, phone.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 6, service.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 7, name.c_str(), -1, SQLITE_STATIC);
+    // Exec the query
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        std::cerr << "Error inserting data: " << sqlite3_errmsg(db_) << std::endl;
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    // Finalize the statement
+    sqlite3_finalize(stmt);
+    return true;
 }
