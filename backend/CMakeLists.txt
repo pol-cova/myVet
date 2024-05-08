@@ -20,6 +20,7 @@ find_package(SQLite3 REQUIRED)
 
 # Define the backend target
 add_executable(backend main.cpp)
+add_executable(backend_test test.cpp)
 
 # Link against OpenSSL
 target_link_libraries(backend OpenSSL::Crypto)

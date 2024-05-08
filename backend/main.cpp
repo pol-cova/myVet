@@ -1,4 +1,9 @@
+// Define CROW_ENABLE_CORS
+#define CROW_MAIN
+#define CROW_ENABLE_CORS
+
 #include "crow_all.h"
+//#include "middlewares/cors.h"
 #include "sqlite3.h"
 #include <chrono>
 #include <ctime>
@@ -17,31 +22,41 @@
 
 int main()
 {
-    // crow app with CORS handler
     crow::App<crow::CORSHandler> app;
 
-
-    // Customize CORS
+    // Customize CORS settings
     auto& cors = app.get_middleware<crow::CORSHandler>();
 
+
     // cors config
-    cors
-    .global()
-            .headers("X-Custom-Header", "Upgrade-Insecure-Requests")
-            .methods("POST"_method, "GET"_method)
-            .origin("*");
-    // clang-format on
+    cors.global()
+    .origin("http://localhost:5173")
+    .allow_credentials()
+    .headers(
+            "Accept",
+            "Origin",
+            "Content-Type",
+            "Authorization",
+            "Refresh",
+            "X-Requested-With")
+    .methods(
+            crow::HTTPMethod::GET,
+            crow::HTTPMethod::POST,
+            crow::HTTPMethod::PUT,
+            crow::HTTPMethod::DELETE,
+            crow::HTTPMethod::OPTIONS
+            );
 
     // route for check if server works
     // /health
-    CROW_ROUTE(app, "/health").methods("GET"_method)
+    CROW_ROUTE(app, "/health").methods(crow::HTTPMethod::GET)
     ([]() {
         return crow::response(200, "OK");
     });
 
     // classic route for hello world
     // /hello
-    CROW_ROUTE(app, "/hello").methods("GET"_method)
+    CROW_ROUTE(app, "/hello").methods(crow::HTTPMethod::GET)
     ([]() {
         return crow::response(200, "Hello, World!");
     });
@@ -49,8 +64,8 @@ int main()
     // routes for auth system
     // route for register new user
     // /api/auth/register
-    CROW_ROUTE(app, "/api/auth/register")
-    .methods("POST"_method)
+    CROW_ROUTE(app, "/auth/register")
+    .methods(crow::HTTPMethod::POST)
     ([](const crow::request &req){
 
         auto json_payload = crow::json::load(req.body);
@@ -91,42 +106,66 @@ int main()
         return crow::response(200, res);
     });
 
+    CROW_ROUTE(app, "/auth/login").methods(crow::HTTPMethod::OPTIONS)
+            ([](const crow::request &req) {
+                // Respond to preflight request with appropriate CORS headers
+                crow::response response;
+                response.set_header("Access-Control-Allow-Origin", "*");
+                response.set_header("Access-Control-Allow-Methods", "POST, GET");
+                response.set_header("Access-Control-Allow-Headers", "X-Custom-Header");
+                return response;
+            });
 
-    CROW_ROUTE(app, "/api/auth/login")
-    .methods("POST"_method)
-    ([](const crow::request &req){
-        
-        auto json_payload = crow::json::load(req.body);
 
-        if (!json_payload){
-            return crow::response(400, "Invalid JSON");
-        }
 
-        std::string user = json_payload["user"].s();
-        std::string password = json_payload["password"].s();
+    CROW_ROUTE(app, "/auth/login")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
 
-        // auth logic
-        Database db("../core/app.db");
-        bool isLogged = db.loginUser(user, password);
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
 
-        if (!isLogged){
-            return crow::response(401, "Unauthorized");
-        }
-        // generate a JWT token
-        std::string token = db.getUserToken(user);
+                        std::string user = json_payload["username"].s();
+                        std::string password = json_payload["password"].s();
 
-        crow::json::wvalue res({
-            {"status", "success"},
-            {"msg", "User logged in successfully"},
-            {"token", token}
-        });
+                        // auth logic
+                        Database db("../core/app.db");
+                        bool isLogged = db.loginUser(user, password);
 
-        return crow::response(200, res);
-    });
+                        if (!isLogged){
+                            crow::json::wvalue res;
+                            res["status"] = "Unauthorized";
+                            res["msg"] = "Authentication failed";
+
+                            crow::response response(401, "Unauthorized");
+                            response.set_header("Access-Control-Allow-Origin", "*");
+                            response.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+                            response.set_header("Access-Control-Allow-Headers", "Content-Type, X-Custom-Header");
+
+                            return response;
+                        }
+
+                        // generate a JWT token
+                        std::string token = db.getUserToken(user);
+
+                        crow::json::wvalue res;
+                        res["status"] = "OK";
+                        res["msg"] = "User logged in successfully";
+                        res["token"] = token;
+
+                        crow::response response(200, res);
+                        response.set_header("Access-Control-Allow-Origin", "*");
+                        response.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+                        response.set_header("Access-Control-Allow-Headers", "Content-Type, X-Custom-Header");
+
+                        return response;
+                    });
 
     // route for get available hours for the appointment
     CROW_ROUTE(app, "/api/appointment/hours")
-    .methods("GET"_method, "POST"_method)
+    .methods( crow::HTTPMethod::POST)
     ([](const crow::request& req){
         // Parse JSON request body
         auto json = crow::json::load(req.body);
@@ -156,7 +195,7 @@ int main()
     // route for create a new appointment for a pet in the system
     // Endpoint to handle appointment creation
     CROW_ROUTE(app, "/api/appointment/create")
-            .methods("POST"_method)
+            .methods(crow::HTTPMethod::POST)
                     ([](const crow::request& req){
                         // Parse JSON request body
                         auto json = crow::json::load(req.body);
@@ -201,7 +240,6 @@ int main()
                         // Respond with success message
                         return crow::response(200,res);
                     });
-
 
 
 

@@ -1,5 +1,4 @@
 /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" -S /Users/paulcontreras/Documents/GitHub/myVet/backend -B /Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug
--- Found SQLite3: /Library/Frameworks/Mono.framework/Headers (found version "3.26.0") 
 -- Configuring done
 -- Generating done
 -- Build files have been written to: /Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug
