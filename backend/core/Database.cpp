@@ -199,7 +199,7 @@ int Database::countAppointmentsByUser(const string &mail) {
 
 vector<Pet> Database::getPetsByUser(const int userID) {
     vector<Pet> pets;
-    const char* sql = "SELECT PetID, Name, Age, Tipo, Genre FROM Pets WHERE UserID = ?";
+    const char* sql = "SELECT PetID, Name, Age, Tipo, Genre, UserID FROM Pets WHERE UserID = ?";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
@@ -215,7 +215,10 @@ vector<Pet> Database::getPetsByUser(const int userID) {
         int age = sqlite3_column_int(stmt, 2);
         string type = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
         string genre = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
-        pets.emplace_back(petID, name, age, type, genre);
+        int ownerID = sqlite3_column_int(stmt, 5);
+        // Assuming the owner's name is available in another variable
+        string ownerName = getOwnerFromPetID(petID);
+        pets.emplace_back(petID, name, age, type, genre, ownerName, ownerID);
     }
     if (rc != SQLITE_DONE) {
         std::cerr << "Error executing query: " << sqlite3_errmsg(db_) << std::endl;
@@ -322,7 +325,7 @@ int Database::countAllPets() {
 
 vector<Pet> Database::getPets() {
     vector<Pet> pets;
-    const char* sql = "SELECT PetID, Name, Age, Tipo, Genre FROM Pets";
+    const char* sql = "SELECT Pets.PetID, Pets.Name, Pets.Age, Pets.Tipo, Pets.Genre, Users.Name, Users.UserID FROM Pets INNER JOIN Users ON Pets.UserID = Users.UserID";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
@@ -336,7 +339,9 @@ vector<Pet> Database::getPets() {
         int age = sqlite3_column_int(stmt, 2);
         string type = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
         string genre = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
-        pets.emplace_back(petID, name, age, type, genre);
+        string ownerName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+        int ownerID = sqlite3_column_int(stmt, 6);
+        pets.emplace_back(petID, name, age, type, genre, ownerName, ownerID);
     }
     if (rc != SQLITE_DONE) {
         std::cerr << "Error executing query: " << sqlite3_errmsg(db_) << std::endl;
@@ -409,4 +414,108 @@ bool Database::updateAppointmentStatus(const int appointmentID) {
     sqlite3_finalize(stmt);
     return true;
 }
+
+string Database::getOwnerFromPetID(const int petID) {
+    const char* sql = "SELECT Users.Name FROM Pets INNER JOIN Users ON Pets.UserID = Users.UserID WHERE Pets.PetID = ?";
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    string owner;
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return owner;
+    }
+    // Bind the values
+    sqlite3_bind_int(stmt, 1, petID);
+    // Exec the query
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        std::cerr << "Error executing query: " << sqlite3_errmsg(db_) << std::endl;
+        sqlite3_finalize(stmt);
+        return owner;
+    }
+    // Get the owner name
+    owner = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+    sqlite3_finalize(stmt);
+    return owner;
+}
+
+int Database::getUserIDFromPetID(const int petID) {
+    const char* sql = "SELECT UserID FROM Pets WHERE PetID = ?";
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    int userID = -1;
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return userID;
+    }
+    // Bind the values
+    sqlite3_bind_int(stmt, 1, petID);
+    // Exec the query
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        std::cerr << "Error executing query: " << sqlite3_errmsg(db_) << std::endl;
+        sqlite3_finalize(stmt);
+        return userID;
+    }
+    // Get the owner name
+    userID = sqlite3_column_int(stmt, 0);
+    sqlite3_finalize(stmt);
+    return userID;
+}
+
+bool Database::insertTratamiento(const string &tratamiento, const string &date, const int petID,
+                                 const int userID, const int medID, const float cost){
+    const char* sql = "INSERT INTO Tratamientos (Tratamiento, DateOfTratamiento, PetID, OwnerUserID, MedUserID, Cost) VALUES (?, ?, ?, ?, ?, ?)";
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return false;
+    }
+    // Bind the values
+    sqlite3_bind_text(stmt, 1, tratamiento.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, date.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 3, petID);
+    sqlite3_bind_int(stmt, 4, userID);
+    sqlite3_bind_int(stmt, 5, medID);
+    sqlite3_bind_double(stmt, 6, cost);
+    // Exec the query
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        std::cerr << "Error inserting data: " << sqlite3_errmsg(db_) << std::endl;
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    // Finalize the statement
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+vector<Tratamiento> Database::getTratamientos() {
+    vector<Tratamiento> tratamientos;
+    const char* sql = "SELECT * FROM Tratamientos";
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return tratamientos;
+    }
+    // Exec the query
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        string tratamiento = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        string date = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        int petID = sqlite3_column_int(stmt, 3);
+        int userID = sqlite3_column_int(stmt, 4);
+        int medID = sqlite3_column_int(stmt, 5);
+        float cost = sqlite3_column_double(stmt, 6);
+        tratamientos.emplace_back(tratamiento, date, petID, userID, medID, cost);
+    }
+    if (rc != SQLITE_DONE) {
+        std::cerr << "Error executing query: " << sqlite3_errmsg(db_) << std::endl;
+    }
+    // Finalize the statement
+    sqlite3_finalize(stmt);
+    return tratamientos;
+}
+
 

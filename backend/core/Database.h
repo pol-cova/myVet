@@ -16,9 +16,12 @@ public:
     int age;
     std::string type;
     std::string genre;
+    // Owner Name and Owner id
+    std::string OwnerName;
+    int OwnerID;
 
-    Pet(int petID, const std::string& name, int age, const std::string& type, const std::string& genre)
-            : petID(petID), name(name), age(age), type(type), genre(genre) {}
+    Pet(int petID, const std::string& name, int age, const std::string& type, const std::string& genre, const std::string& ownerName, int ownerID)
+            : petID(petID), name(name), age(age), type(type), genre(genre), OwnerName(ownerName), OwnerID(ownerID) {}
 };
 
 class Cita {
@@ -38,6 +41,19 @@ public:
             : AppointmentID(appointmentID), PetName(petName), AppointmentDate(appointmentDate),
               AppointmentTime(appointmentTime), Phone(phone), Service(service),
               OwnerName(ownerName), Status(status) {}
+};
+
+class Tratamiento {
+public:
+    std::string tratamiento;
+    std::string date;
+    int petID;
+    int userID;
+    int medID;
+    float cost;
+
+    Tratamiento(const std::string &tratamiento, const std::string &date, int petID, int userID, int medID, float cost)
+            : tratamiento(tratamiento), date(date), petID(petID), userID(userID), medID(medID), cost(cost) {}
 };
 
 
@@ -104,10 +120,25 @@ public:
     // get all information of pets store in vector type pet
     vector<Pet> getPets();
 
+    // get Owner from petID
+    string getOwnerFromPetID(const int petID);
+    // retrieve userID from petID
+    int getUserIDFromPetID(const int petID);
+
+
     // users logic
 
     // count all users
     int countAllUsers();
+
+
+    // Insert a new Tratamiento
+    bool insertTratamiento(const string &tratamiento, const string &date, const int petID,
+                           const int userID, const int medID, const float cost);
+
+    // get all information of tratamientos store in vector type tratamiento
+    vector<Tratamiento> getTratamientos();
+
 
 
 

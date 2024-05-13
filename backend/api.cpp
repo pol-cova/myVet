@@ -318,10 +318,39 @@ int main()
                             petJson["age"] = pet.age;
                             petJson["type"] = pet.type;
                             petJson["genre"] = pet.genre;
+                            petJson["ownerName"] = pet.OwnerName;
+                            petJson["ownerID"] = pet.OwnerID;
                             petsArray.emplace_back(petJson);
                         }
                         res["pets"] = std::move(petsArray);
                         res["count"] = count;
+
+                        return crow::response(200, res);
+                    });
+    // get owner
+    CROW_ROUTE(app, "/pet/owner")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
+
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
+
+                        int petID = json_payload["petID"].i();
+
+                        // db logic
+                        Database db("../core/app.db");
+                        std::string owner = db.getOwnerFromPetID(petID);
+                        int userID = db.getUserIDFromPetID(petID);
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Owner retrieved successfully"},
+                                                       {"owner", owner},
+                                                       {"userID", userID}
+                                               });
 
                         return crow::response(200, res);
                     });
@@ -496,6 +525,73 @@ int main()
 
                         return crow::response(200, res);
                     });
+
+    // Create Tratamiento
+    CROW_ROUTE(app, "/tratamiento/create")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
+
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
+
+                        std::string tratamiento = json_payload["tratamiento"].s();
+                        std::string date = json_payload["date"].s();
+                        int petID = json_payload["petID"].i();
+                        int userID = json_payload["userID"].i();
+                        int medID = json_payload["medID"].i();
+                        float cost = json_payload["cost"].d();
+
+                        // db logic
+                        Database db("../core/app.db");
+                        bool status = db.insertTratamiento(tratamiento, date, petID, userID, medID, cost);
+
+                        if (!status){
+                            return crow::response(500, "Internal Server Error");
+                        }
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Tratamiento created successfully"}
+                                               });
+
+                        return crow::response(200, res);
+                    });
+
+    // Get all tratamientos
+    CROW_ROUTE(app, "/tratamiento/all")
+            .methods(crow::HTTPMethod::GET)
+                    ([](const crow::request &req){
+
+                        // db logic
+                        Database db("../core/app.db");
+                        std::vector<Tratamiento> tratamientos = db.getTratamientos();
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Tratamientos retrieved successfully"}
+                                               });
+
+                        // Create a JSON array for appointments
+                        std::vector<crow::json::wvalue> tratamientosArray;
+                        for (const auto& tratamiento : tratamientos) {
+                            crow::json::wvalue tratamientoJson;
+                            tratamientoJson["tratamiento"] = tratamiento.tratamiento;
+                            tratamientoJson["date"] = tratamiento.date;
+                            tratamientoJson["petID"] = tratamiento.petID;
+                            tratamientoJson["userID"] = tratamiento.userID;
+                            tratamientoJson["medID"] = tratamiento.medID;
+                            tratamientoJson["cost"] = tratamiento.cost;
+                            tratamientosArray.emplace_back(tratamientoJson);
+                        }
+                        res["tratamientos"] = std::move(tratamientosArray);
+
+                        return crow::response(200, res);
+                    });
+
 
 
     app.bindaddr("127.0.0.1").port(18080).multithreaded().run();

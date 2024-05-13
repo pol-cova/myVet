@@ -12,11 +12,13 @@ import {
 } from "flowbite-react";
 import { MdPets, MdEdit } from "react-icons/md";
 import {
-  HiAdjustments,
   HiClipboardList,
   HiCalendar,
 } from "react-icons/hi";
-import { FaFileInvoiceDollar, FaFacebookMessenger } from "react-icons/fa";
+import { FaFileInvoiceDollar, FaFacebookMessenger, FaMedkit } from "react-icons/fa";
+
+// import custom modal
+import TratamientoModal from "./TratamientoModal";
 
 
 import axios from "axios";
@@ -28,6 +30,16 @@ export default function AdminDashboard({ user }: { user: any }) {
   const [userCount, setUserCount] = useState(0);
   const [pets, setPets] = useState([]);
   const [citas, setCitas] = useState([]);
+  const [tratamiento, setTratamientos] = useState([]);
+  const [petOwner, setPetOwner] = useState({});
+
+  const [openModal, setOpenModal] = useState(false);
+
+  const onCloseModal = () => {
+    setOpenModal(false);
+  }
+
+
 
   // get users count
   const fetchUsersCount = async () => {
@@ -85,10 +97,25 @@ export default function AdminDashboard({ user }: { user: any }) {
     }
   };
 
+
+  // get all tratamientos
+  const fetchTratamientos = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:18080/tratamiento/all");
+      setTratamientos(response.data.tratamientos);
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
+
   useEffect(() => {
     fetchUsersCount();
     fetchPets();
     fetchCitas();
+    fetchTratamientos();
   }, []);
   return (
     <div className="antialiased bg-gray-50 dark:bg-gray-900">
@@ -226,7 +253,9 @@ export default function AdminDashboard({ user }: { user: any }) {
                     <TableHeadCell>Edad</TableHeadCell>
                     <TableHeadCell>Especie</TableHeadCell>
                     <TableHeadCell>Sexo</TableHeadCell>
+                    <TableHeadCell>Dueño</TableHeadCell>
                     <TableHeadCell>Detalles</TableHeadCell>
+                    <TableHeadCell>Tratar</TableHeadCell>
                     <TableHeadCell>
                       <span className="sr-only">Edit</span>
                     </TableHeadCell>
@@ -243,12 +272,20 @@ export default function AdminDashboard({ user }: { user: any }) {
                         <TableCell>{pet.age}</TableCell>
                         <TableCell>{pet.type}</TableCell>
                         <TableCell>{pet.genre}</TableCell>
+                        <TableCell>{pet.ownerName}</TableCell>
                         <TableCell>
                             <Button color="dark">
                                 <MdEdit  className="mr-3 h-4 w-4" />
                                 Editar
                             </Button>
                         </TableCell>
+                        <TableCell>
+                            <Button color="light" onClick={() => setOpenModal(true)} >
+                                <FaMedkit className="mr-3 h-4 w-4" />
+                                Tratar
+                            </Button>
+                        </TableCell>
+                        <TratamientoModal openModal={openModal} onCloseModal={onCloseModal} user={user} petId={pet.petID} ownerId={pet.ownerID} fetchTratamientos={fetchTratamientos} />
                       </TableRow>
                     ))}
                   </TableBody>
