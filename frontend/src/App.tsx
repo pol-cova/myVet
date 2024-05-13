@@ -10,6 +10,10 @@ import { HiCalendar } from 'react-icons/hi';
 import LoginView from "./pages/LoginView.tsx";
 import HomeView from "./pages/HomeView.tsx";
 import RegisterView from './pages/RegisterView.tsx';
+import AboutView from './pages/AboutView.tsx';
+import ContactView from './pages/ContactView.tsx';
+import TestimonialView from './pages/Testimonials.tsx';
+import ServiceView from './pages/ServicesView.tsx';
 
 // import modal
 import CitaModalHome from './components/CitaModalHome.tsx';
@@ -43,6 +47,10 @@ function App() {
                 <Route path="/login" element={<LoginView />} />
                 <Route path="/home" element={<HomeView />} />
                 <Route path="/register" element={<RegisterView />} />
+                <Route path='/about' element={<AboutView />}/>
+                <Route path='/contact' element={<ContactView />}/>
+                <Route path='/services' element={<ServiceView />}/>
+                <Route path='/testimonials' element={<TestimonialView />}/>
                 <Route path="/" element={
                     <>
                     <NavMenu />

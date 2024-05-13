@@ -17,10 +17,10 @@ export default function NavMenu() {
                 <NavbarLink href="/">
                     Home
                 </NavbarLink>
-                <NavbarLink href="#">Sobre Nosotros</NavbarLink>
-                <NavbarLink href="#">Servicios</NavbarLink>
-                <NavbarLink href="#">Precios</NavbarLink>
-                <NavbarLink href="#">Contacto</NavbarLink>
+                <NavbarLink href="/about">Sobre Nosotros</NavbarLink>
+                <NavbarLink href="/testimonials">Testimonios</NavbarLink>
+                <NavbarLink href="/services">Services</NavbarLink>
+                <NavbarLink href="/contact">Contacto</NavbarLink>
                 <NavbarLink href="/home">Dashboard</NavbarLink>
             </NavbarCollapse>
         </Navbar>
