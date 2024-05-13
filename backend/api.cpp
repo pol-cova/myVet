@@ -355,6 +355,37 @@ int main()
                         return crow::response(200, res);
                     });
 
+    // Update pet info
+    CROW_ROUTE(app, "/pet/update")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
+
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
+
+                        int petID = json_payload["petID"].i();
+                        int weight = json_payload["weight"].i();
+                        int height = json_payload["height"].i();
+
+                        // db logic
+                        Database db("../core/app.db");
+                        bool status = db.updatePetInfo(petID, weight, height);
+
+                        if (!status){
+                            return crow::response(500, "Internal Server Error");
+                        }
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Pet updated successfully"}
+                                               });
+
+                        return crow::response(200, res);
+                    });
+
     // Appointments logic
 
     CROW_ROUTE(app, "/appointment/hours")
@@ -579,6 +610,7 @@ int main()
                         std::vector<crow::json::wvalue> tratamientosArray;
                         for (const auto& tratamiento : tratamientos) {
                             crow::json::wvalue tratamientoJson;
+                            tratamientoJson["tratamientoID"] = tratamiento.tratamientoID;
                             tratamientoJson["tratamiento"] = tratamiento.tratamiento;
                             tratamientoJson["date"] = tratamiento.date;
                             tratamientoJson["petID"] = tratamiento.petID;
@@ -587,9 +619,132 @@ int main()
                             tratamientoJson["cost"] = tratamiento.cost;
                             tratamientoJson["OwnerName"] = tratamiento.OwnerName;
                             tratamientoJson["PetName"] = tratamiento.PetName;
+                            tratamientoJson["Status"] = tratamiento.Status;
                             tratamientosArray.emplace_back(tratamientoJson);
                         }
                         res["tratamientos"] = std::move(tratamientosArray);
+
+                        return crow::response(200, res);
+                    });
+
+    // Complete tratamiento
+    CROW_ROUTE(app, "/tratamiento/complete")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
+
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
+
+                        int tratamientoID = json_payload["tratamientoID"].i();
+
+                        // db logic
+                        Database db("../core/app.db");
+                        bool status = db.updateTratamientoStatus(tratamientoID);
+
+                        if (!status){
+                            return crow::response(500, "Internal Server Error");
+                        }
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Tratamiento completed successfully"}
+                                               });
+
+                        return crow::response(200, res);
+                    });
+
+    // Facturas
+    // Create Factura
+    CROW_ROUTE(app, "/factura/create")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
+
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
+
+                        int tratamientoID = json_payload["tratamientoID"].i();
+                        int ownerID = json_payload["ownerID"].i();
+                        std::string date = json_payload["date"].s();
+                        float cost = json_payload["cost"].d();
+
+
+                        // db logic
+                        Database db("../core/app.db");
+                        bool status = db.insertFactura(tratamientoID, cost, date, ownerID);
+
+                        if (!status){
+                            return crow::response(500, "Internal Server Error");
+                        }
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Factura created successfully"}
+                                               });
+
+                        return crow::response(200, res);
+                    });
+    // complete factura
+    CROW_ROUTE(app, "/factura/complete")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
+
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
+
+                        int facturaID = json_payload["facturaID"].i();
+
+                        // db logic
+                        Database db("../core/app.db");
+                        bool status = db.updateFacturaStatus(facturaID);
+
+                        if (!status){
+                            return crow::response(500, "Internal Server Error");
+                        }
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Factura completed successfully"}
+                                               });
+
+                        return crow::response(200, res);
+                    });
+
+    // Get all facturas
+    CROW_ROUTE(app, "/factura/all")
+            .methods(crow::HTTPMethod::GET)
+                    ([](const crow::request &req){
+
+                        // db logic
+                        Database db("../core/app.db");
+                        std::vector<Factura> facturas = db.getFacturas();
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Facturas retrieved successfully"}
+                                               });
+
+                        // Create a JSON array for facturas
+                        std::vector<crow::json::wvalue> facturasArray;
+                        for (const auto& factura : facturas) {
+                            crow::json::wvalue facturaJson;
+                            facturaJson["facturaID"] = factura.FacturaID;
+                            facturaJson["totalCost"] = factura.Cost;
+                            facturaJson["dateOfEmision"] = factura.Date;
+                            facturaJson["OwnerName"] = factura.OwnerName;
+                            facturaJson["Status"] = factura.Status;
+                            facturasArray.emplace_back(facturaJson);
+                        }
+                        res["facturas"] = std::move(facturasArray);
 
                         return crow::response(200, res);
                     });

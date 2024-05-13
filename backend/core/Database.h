@@ -45,6 +45,7 @@ public:
 
 class Tratamiento {
 public:
+    int tratamientoID;
     std::string tratamiento;
     std::string date;
     int petID;
@@ -53,9 +54,22 @@ public:
     float cost;
     std::string OwnerName;
     std::string PetName;
+    int Status;
 
-    Tratamiento(const std::string &tratamiento, const std::string &date, int petID, int userID, int medID, float cost, const std::string &ownerName, const std::string &petName)
-            : tratamiento(tratamiento), date(date), petID(petID), userID(userID), medID(medID), cost(cost), OwnerName(ownerName), PetName(petName) {}
+    Tratamiento(const int tratamientoId,const std::string &tratamiento, const std::string &date, int petID, int userID, int medID, float cost, const std::string &ownerName, const std::string &petName, const int status)
+            :tratamientoID(tratamientoId), tratamiento(tratamiento), date(date), petID(petID), userID(userID), medID(medID), cost(cost), OwnerName(ownerName), PetName(petName), Status(status) {};;
+};
+
+class Factura {
+public:
+    int FacturaID;
+    std::string OwnerName;
+    std::string Date;
+    float Cost;
+    int Status;
+
+    Factura(int facturaID, const std::string &ownerName, const std::string &date, float cost, int status)
+            : FacturaID(facturaID), OwnerName(ownerName), Date(date), Cost(cost), Status(status) {}
 };
 
 
@@ -126,6 +140,8 @@ public:
     string getOwnerFromPetID(const int petID);
     // retrieve userID from petID
     int getUserIDFromPetID(const int petID);
+    // update pet information Weight and Height
+    bool updatePetInfo(const int petID, const int weight, const int height);
 
 
     // users logic
@@ -134,12 +150,37 @@ public:
     int countAllUsers();
 
 
+    // tratamientos logic
+
     // Insert a new Tratamiento
     bool insertTratamiento(const string &tratamiento, const string &date, const int petID,
                            const int userID, const int medID, const float cost);
 
     // get all information of tratamientos store in vector type tratamiento
     vector<Tratamiento> getTratamientos();
+
+    // update status of tratamiento
+    bool updateTratamientoStatus(const int tratamientoID);
+
+    // facturas logic
+
+    // Insert a new Factura
+    /*
+     * TratamientoID
+        TotalCost
+        DateOfEmision
+        OwnerID
+     */
+    bool insertFactura(const int tratamientoID, const float totalCost, const string &date, const int ownerID);
+
+    // get all information of facturas store in vector type factura
+    vector<Factura> getFacturas();
+
+    // update factura status
+    bool updateFacturaStatus(const int facturaID);
+
+
+
 
 
 

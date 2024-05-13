@@ -19,6 +19,7 @@ import { FaFileInvoiceDollar, FaFacebookMessenger, FaMedkit } from "react-icons/
 
 // import custom modal
 import TratamientoModal from "./TratamientoModal";
+import UpdatePet from "./InfoModal";
 
 
 import axios from "axios";
@@ -31,14 +32,23 @@ export default function AdminDashboard({ user }: { user: any }) {
   const [pets, setPets] = useState([]);
   const [citas, setCitas] = useState([]);
   const [tratamiento, setTratamientos] = useState([]);
-  const [petOwner, setPetOwner] = useState({});
+  const [facturas, setFacturas] = useState([]);
+
 
   const [openModal, setOpenModal] = useState(false);
+  const [updateModal, setUpdateModal] = useState(false);
 
   const onCloseModal = () => {
     setOpenModal(false);
   }
 
+  const onCloseUpdateModal = () => {
+    setUpdateModal(false);
+  }
+
+  // today date
+  const today = new Date();
+  const todayDate = today.toISOString().split('T')[0];
 
 
   // get users count
@@ -109,6 +119,83 @@ export default function AdminDashboard({ user }: { user: any }) {
     }
   };
 
+  // get facturas
+  const fetchFacturas = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:18080/factura/all");
+      console.log(response.data);
+      setFacturas(response.data.facturas);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const completeTratamiento = async (tratamientoID: number) => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:18080/tratamiento/complete",
+        { tratamientoID }
+      );
+      if (response.data.status === "success") {
+        console.log(response.data.msg);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error completing treatment:", error);
+      alert("Error al completar el tratamiento");
+    }
+  };
+
+  // handle facturar
+   // handle facturar
+   const facturar = async (tratamientoID: number, ownerID:number, date:string, cost:number) => {
+    if (typeof tratamientoID !== 'number' || typeof ownerID !== 'number' || typeof date !== 'string' || typeof cost !== 'number') {
+      console.error("Invalid data types");
+      console.log('Type of tratamientoID:', typeof tratamientoID);
+      console.log('Type of ownerID:', typeof ownerID);
+      console.log('Type of date:', typeof date);
+      console.log('Type of cost:', typeof cost);
+      return;
+    }
+    try {
+      const tratamientoResponse = await completeTratamiento(tratamientoID);
+      if (tratamientoResponse) {
+        const response = await axios.post(
+          "http://127.0.0.1:18080/factura/create",
+          { tratamientoID, ownerID, date, cost }
+        );
+        if (response.data.status === "success") {
+          console.log(response.data.msg);
+          alert("Factura generada exitosamente.");
+          // Refresh your data here
+          fetchFacturas();
+          fetchTratamientos();
+        }
+      }
+    } catch (error) {
+      console.error("Error completing invoice:", error);
+      alert("Error al generar la factura");
+    }
+  };
+
+  // Handle send factura
+  const sendFactura = async (facturaID: number) => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:18080/factura/complete",
+        { facturaID }
+      );
+      if (response.data.status === "success") {
+        console.log(response.data.msg);
+        alert("Factura enviada exitosamente.");
+        fetchFacturas();
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error sending invoice:", error);
+      alert("Error al enviar la factura");
+    }
+  };
 
 
   useEffect(() => {
@@ -116,6 +203,7 @@ export default function AdminDashboard({ user }: { user: any }) {
     fetchPets();
     fetchCitas();
     fetchTratamientos();
+    fetchFacturas();
   }, []);
   return (
     <div className="antialiased bg-gray-50 dark:bg-gray-900">
@@ -274,7 +362,7 @@ export default function AdminDashboard({ user }: { user: any }) {
                         <TableCell>{pet.genre}</TableCell>
                         <TableCell>{pet.ownerName}</TableCell>
                         <TableCell>
-                            <Button color="dark">
+                            <Button color="dark" onClick={() => setUpdateModal(true)}>
                                 <MdEdit  className="mr-3 h-4 w-4" />
                                 Editar
                             </Button>
@@ -285,6 +373,7 @@ export default function AdminDashboard({ user }: { user: any }) {
                                 Tratar
                             </Button>
                         </TableCell>
+                        <UpdatePet openModal={updateModal} onCloseModal={onCloseUpdateModal}  petId={pet.petID} fetchPets={fetchPets} />
                         <TratamientoModal openModal={openModal} onCloseModal={onCloseModal} user={user} petId={pet.petID} ownerId={pet.ownerID} fetchTratamientos={fetchTratamientos} />
                       </TableRow>
                     ))}
@@ -294,13 +383,64 @@ export default function AdminDashboard({ user }: { user: any }) {
             </div>
           </Tabs.Item>
           <Tabs.Item title="Facturas" icon={FaFileInvoiceDollar}>
-            This is{" "}
-            <span className="font-medium text-gray-800 dark:text-white">
-              Settings tab's associated content
-            </span>
-            . Clicking another tab will toggle the visibility of this one for
-            the next. The tab JavaScript swaps classes to control the content
-            visibility and styling.
+            <div className="border-dashed rounded-lg border-gray-300 dark:border-gray-600 mb-4 flex flex-wrap">
+              <div className="overflow-x-auto w-full" id="facturas">
+                <Table>
+                  <TableHead>
+                    <TableHeadCell>A Nombre</TableHeadCell>
+                    <TableHeadCell>Fecha de Emision</TableHeadCell>
+                    <TableHeadCell>Costo Total</TableHeadCell>
+                    <TableHeadCell>Estatus</TableHeadCell>
+                    <TableHeadCell>Enviar</TableHeadCell>
+                  </TableHead>
+                  <TableBody className="divide-y">
+                    {facturas.map((factura, index) => (
+                      <TableRow
+                        key={index}
+                        className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                      >
+                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {factura.OwnerName}
+                        </TableCell>
+                        <TableCell>{factura.dateOfEmision}</TableCell>
+                        <TableCell>{factura.totalCost}</TableCell>
+    
+                        <TableCell>
+                          {factura.Status === 1 ? (
+                            <span role="img" aria-label="check">
+                              ✅
+                            </span>
+                          ) : (
+                            <span role="img" aria-label="check">
+                              ❌
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {factura.Status === 1 ? (
+                            <Button
+                              disabled
+                              color="dark"
+                              
+                            >
+                              Enviar
+                              
+                            </Button>
+                          ) : (
+                            <Button
+                            color="dark"
+                            onClick={() => sendFactura(factura.facturaID)}
+                          >
+                            Enviar
+                          </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
           </Tabs.Item>
           <Tabs.Item title="Tratamientos" icon={HiClipboardList}>
             <div className="border-dashed rounded-lg border-gray-300 dark:border-gray-600 mb-4 flex flex-wrap">
@@ -312,6 +452,8 @@ export default function AdminDashboard({ user }: { user: any }) {
                     <TableHeadCell>Tratamiento</TableHeadCell>
                     <TableHeadCell>Costo</TableHeadCell>
                     <TableHeadCell>Fecha</TableHeadCell>
+                    <TableHeadCell>Estatus</TableHeadCell>
+                    <TableHeadCell>Factura</TableHeadCell>
                   </TableHead>
                   <TableBody className="divide-y">
                     {tratamiento.map((trat, index) => (
@@ -326,6 +468,41 @@ export default function AdminDashboard({ user }: { user: any }) {
                         <TableCell>{trat.tratamiento}</TableCell>
                         <TableCell>{trat.cost}</TableCell>
                         <TableCell>{trat.date}</TableCell>
+                        <TableCell>
+                          {trat.Status === 1 ? (
+                            <span role="img" aria-label="check">
+                              ✅
+                            </span>
+                          ) : (
+                            
+                            <span role="img" aria-label="check">
+                              ❌
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {trat.Status === 1 ? (
+                            <Button
+                              onClick={() =>
+                                facturar(trat.tratamientoID, trat.userID, todayDate, trat.cost)
+                              }
+                              disabled
+                              color="dark"
+                            >
+                              Facturar
+                              
+                            </Button>
+                          ) : (
+                            <Button
+                            onClick={() =>
+                              facturar(trat.tratamientoID, trat.userID, todayDate, trat.cost)
+                            }
+                            color="dark"
+                          >
+                            Facturar
+                          </Button>
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -333,7 +510,7 @@ export default function AdminDashboard({ user }: { user: any }) {
               </div>
             </div>
           </Tabs.Item>
-          <Tabs.Item  title="Mensajes" icon={FaFacebookMessenger}>
+          <Tabs.Item  title="Mensajes" icon={FaFacebookMessenger} disabled>
             Disabled content
           </Tabs.Item>
         </Tabs>
