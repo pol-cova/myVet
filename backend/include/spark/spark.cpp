@@ -74,7 +74,7 @@ bool validatePassword(const string password, const string storedHash, const stri
 }
 
 // Function to generate a JWT token
-string generateJWT(const string username, const string role, const string userID) {
+string generateJWT(const string username, const string role, const string userID, const string mail) {
     // Create a new JWT builder
     auto token = jwt::create()
             .set_type("JWS")
@@ -85,11 +85,13 @@ string generateJWT(const string username, const string role, const string userID
     jwt::claim username_claim = jwt::claim(username);
     jwt::claim role_claim = jwt::claim(role);
     jwt::claim userID_claim = jwt::claim(userID);
+    jwt::claim mail_claim = jwt::claim(mail);
 
     // Add payload claims to the token
     token.set_payload_claim("username", username_claim)
             .set_payload_claim("role", role_claim)
-            .set_payload_claim("userID", userID_claim);
+            .set_payload_claim("userID", userID_claim)
+            .set_payload_claim("mail", mail_claim);
 
     // Set expiration time to 1 hour from now
     auto expiration_time = std::chrono::system_clock::now() + std::chrono::hours(1);

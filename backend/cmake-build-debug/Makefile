@@ -130,17 +130,41 @@ backend/fast:
 .PHONY : backend/fast
 
 #=============================================================================
-# Target rules for targets named backend_test
+# Target rules for targets named api
 
 # Build rule for target.
-backend_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 backend_test
-.PHONY : backend_test
+api: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 api
+.PHONY : api
 
 # fast build rule for target.
-backend_test/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/backend_test.dir/build.make CMakeFiles/backend_test.dir/build
-.PHONY : backend_test/fast
+api/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/api.dir/build.make CMakeFiles/api.dir/build
+.PHONY : api/fast
+
+api.o: api.cpp.o
+.PHONY : api.o
+
+# target to build an object file
+api.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/api.dir/build.make CMakeFiles/api.dir/api.cpp.o
+.PHONY : api.cpp.o
+
+api.i: api.cpp.i
+.PHONY : api.i
+
+# target to preprocess a source file
+api.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/api.dir/build.make CMakeFiles/api.dir/api.cpp.i
+.PHONY : api.cpp.i
+
+api.s: api.cpp.s
+.PHONY : api.s
+
+# target to generate assembly for a file
+api.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/api.dir/build.make CMakeFiles/api.dir/api.cpp.s
+.PHONY : api.cpp.s
 
 main.o: main.cpp.o
 .PHONY : main.o
@@ -166,30 +190,6 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/backend.dir/build.make CMakeFiles/backend.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-test.o: test.cpp.o
-.PHONY : test.o
-
-# target to build an object file
-test.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/backend_test.dir/build.make CMakeFiles/backend_test.dir/test.cpp.o
-.PHONY : test.cpp.o
-
-test.i: test.cpp.i
-.PHONY : test.i
-
-# target to preprocess a source file
-test.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/backend_test.dir/build.make CMakeFiles/backend_test.dir/test.cpp.i
-.PHONY : test.cpp.i
-
-test.s: test.cpp.s
-.PHONY : test.s
-
-# target to generate assembly for a file
-test.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/backend_test.dir/build.make CMakeFiles/backend_test.dir/test.cpp.s
-.PHONY : test.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -198,14 +198,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... api"
 	@echo "... backend"
-	@echo "... backend_test"
+	@echo "... api.o"
+	@echo "... api.i"
+	@echo "... api.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... test.o"
-	@echo "... test.i"
-	@echo "... test.s"
 .PHONY : help
 
 

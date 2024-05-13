@@ -67,8 +67,8 @@
 					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="backend_test">
-				<Option output="/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/backend_test" prefix_auto="0" extension_auto="0"/>
+			<Target title="api">
+				<Option output="/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/api" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
@@ -85,14 +85,14 @@
 					<Add directory="/Library/Frameworks"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 backend_test"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 api"/>
 					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="backend_test/fast">
-				<Option output="/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/backend_test" prefix_auto="0" extension_auto="0"/>
+			<Target title="api/fast">
+				<Option output="/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/api" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
@@ -109,7 +109,7 @@
 					<Add directory="/Library/Frameworks"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 backend_test/fast"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 api/fast"/>
 					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/paulcontreras/Documents/GitHub/myVet/backend/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
@@ -136,11 +136,11 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/paulcontreras/Documents/GitHub/myVet/backend/api.cpp">
+			<Option target="api"/>
+		</Unit>
 		<Unit filename="/Users/paulcontreras/Documents/GitHub/myVet/backend/main.cpp">
 			<Option target="backend"/>
-		</Unit>
-		<Unit filename="/Users/paulcontreras/Documents/GitHub/myVet/backend/test.cpp">
-			<Option target="backend_test"/>
 		</Unit>
 		<Unit filename="/Users/paulcontreras/Documents/GitHub/myVet/backend/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
