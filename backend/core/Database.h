@@ -51,9 +51,11 @@ public:
     int userID;
     int medID;
     float cost;
+    std::string OwnerName;
+    std::string PetName;
 
-    Tratamiento(const std::string &tratamiento, const std::string &date, int petID, int userID, int medID, float cost)
-            : tratamiento(tratamiento), date(date), petID(petID), userID(userID), medID(medID), cost(cost) {}
+    Tratamiento(const std::string &tratamiento, const std::string &date, int petID, int userID, int medID, float cost, const std::string &ownerName, const std::string &petName)
+            : tratamiento(tratamiento), date(date), petID(petID), userID(userID), medID(medID), cost(cost), OwnerName(ownerName), PetName(petName) {}
 };
 
 

@@ -303,13 +303,35 @@ export default function AdminDashboard({ user }: { user: any }) {
             visibility and styling.
           </Tabs.Item>
           <Tabs.Item title="Tratamientos" icon={HiClipboardList}>
-            This is{" "}
-            <span className="font-medium text-gray-800 dark:text-white">
-              Contacts tab's associated content
-            </span>
-            . Clicking another tab will toggle the visibility of this one for
-            the next. The tab JavaScript swaps classes to control the content
-            visibility and styling.
+            <div className="border-dashed rounded-lg border-gray-300 dark:border-gray-600 mb-4 flex flex-wrap">
+              <div className="overflow-x-auto w-full" id="tratamientos">
+                <Table>
+                  <TableHead>
+                    <TableHeadCell>Dueño</TableHeadCell>
+                    <TableHeadCell>Mascota</TableHeadCell>
+                    <TableHeadCell>Tratamiento</TableHeadCell>
+                    <TableHeadCell>Costo</TableHeadCell>
+                    <TableHeadCell>Fecha</TableHeadCell>
+                  </TableHead>
+                  <TableBody className="divide-y">
+                    {tratamiento.map((trat, index) => (
+                      <TableRow
+                        key={index}
+                        className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                      >
+                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {trat.OwnerName}
+                        </TableCell>
+                        <TableCell>{trat.PetName}</TableCell>
+                        <TableCell>{trat.tratamiento}</TableCell>
+                        <TableCell>{trat.cost}</TableCell>
+                        <TableCell>{trat.date}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
           </Tabs.Item>
           <Tabs.Item  title="Mensajes" icon={FaFacebookMessenger}>
             Disabled content

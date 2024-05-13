@@ -575,7 +575,7 @@ int main()
                                                        {"msg", "Tratamientos retrieved successfully"}
                                                });
 
-                        // Create a JSON array for appointments
+                        // Create a JSON array for tratamientos
                         std::vector<crow::json::wvalue> tratamientosArray;
                         for (const auto& tratamiento : tratamientos) {
                             crow::json::wvalue tratamientoJson;
@@ -585,13 +585,14 @@ int main()
                             tratamientoJson["userID"] = tratamiento.userID;
                             tratamientoJson["medID"] = tratamiento.medID;
                             tratamientoJson["cost"] = tratamiento.cost;
+                            tratamientoJson["OwnerName"] = tratamiento.OwnerName;
+                            tratamientoJson["PetName"] = tratamiento.PetName;
                             tratamientosArray.emplace_back(tratamientoJson);
                         }
                         res["tratamientos"] = std::move(tratamientosArray);
 
                         return crow::response(200, res);
                     });
-
 
 
     app.bindaddr("127.0.0.1").port(18080).multithreaded().run();

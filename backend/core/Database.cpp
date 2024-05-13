@@ -493,7 +493,7 @@ bool Database::insertTratamiento(const string &tratamiento, const string &date, 
 
 vector<Tratamiento> Database::getTratamientos() {
     vector<Tratamiento> tratamientos;
-    const char* sql = "SELECT * FROM Tratamientos";
+    const char* sql = "SELECT Tratamientos.Tratamiento, Tratamientos.DateOfTratamiento, Tratamientos.PetID, Tratamientos.OwnerUserID, Tratamientos.MedUserID, Tratamientos.Cost, Users.Name, Pets.Name FROM Tratamientos INNER JOIN Users ON Tratamientos.OwnerUserID = Users.UserID INNER JOIN Pets ON Tratamientos.PetID = Pets.PetID";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
@@ -502,13 +502,15 @@ vector<Tratamiento> Database::getTratamientos() {
     }
     // Exec the query
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        string tratamiento = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-        string date = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-        int petID = sqlite3_column_int(stmt, 3);
-        int userID = sqlite3_column_int(stmt, 4);
-        int medID = sqlite3_column_int(stmt, 5);
-        float cost = sqlite3_column_double(stmt, 6);
-        tratamientos.emplace_back(tratamiento, date, petID, userID, medID, cost);
+        string tratamiento = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        string date = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        int petID = sqlite3_column_int(stmt, 2);
+        int userID = sqlite3_column_int(stmt, 3);
+        int medID = sqlite3_column_int(stmt, 4);
+        float cost = sqlite3_column_double(stmt, 5);
+        string ownerName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6));
+        string petName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 7));
+        tratamientos.emplace_back(tratamiento, date, petID, userID, medID, cost, ownerName, petName);
     }
     if (rc != SQLITE_DONE) {
         std::cerr << "Error executing query: " << sqlite3_errmsg(db_) << std::endl;
