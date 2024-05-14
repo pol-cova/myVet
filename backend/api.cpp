@@ -749,6 +749,97 @@ int main()
                         return crow::response(200, res);
                     });
 
+    // registrar una venta
+    CROW_ROUTE(app, "/venta/create")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
+
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
+
+                        int userID = json_payload["userID"].i();
+                        string concepto = json_payload["concepto"].s();
+                        string date = json_payload["date"].s();
+                        float monto = json_payload["monto"].d();
+                        float cambio = json_payload["cambio"].d();
+                        float recibido = json_payload["recibido"].d();
+
+
+                        // db logic
+                        Database db("../core/app.db");
+                        bool status = db.insertVenta(date, concepto, userID, monto, cambio, recibido);
+
+                        if (!status){
+                            return crow::response(500, "Internal Server Error");
+                        }
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Venta created successfully"}
+                                               });
+
+                        return crow::response(200, res);
+                    });
+
+    // get monto ventas today
+    CROW_ROUTE(app, "/venta/total")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
+
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
+
+                        string date = json_payload["date"].s();
+
+                        // db logic
+                        Database db("../core/app.db");
+                        float total = db.totalVentas(date);
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Total ventas retrieved successfully"},
+                                                       {"total", total}
+                                               });
+
+                        return crow::response(200, res);
+                    });
+
+
+    // get ventas today count
+    CROW_ROUTE(app, "/venta/count")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
+
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
+
+                        string date = json_payload["date"].s();
+
+                        // db logic
+                        Database db("../core/app.db");
+                        int count = db.countVentas(date);
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Ventas count retrieved successfully"},
+                                                       {"count", count}
+                                               });
+
+                        return crow::response(200, res);
+                    });
+
+
+
+
 
     app.bindaddr("127.0.0.1").port(18080).multithreaded().run();
 }

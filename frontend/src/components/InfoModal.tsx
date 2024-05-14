@@ -52,11 +52,11 @@ export default function UpdatePet({openModal, onCloseModal, petId, fetchPets}: {
             <h3 className="text-xl font-medium text-gray-900 dark:text-white">Actualizar mascota </h3>
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="height" value="Altura de tu mascota (cm): " />
+                <Label htmlFor="height" value="Tamaño de mascota (cm): " />
               </div>
               <TextInput
                 id="height"
-                placeholder="163"
+                placeholder="163 cm"
                 value={height}
                 onChange={(event) => setHeight(parseFloat(event.target.value))}
                 required
@@ -64,11 +64,11 @@ export default function UpdatePet({openModal, onCloseModal, petId, fetchPets}: {
             </div>
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="weight" value="Peso de tu mascota: " />
+                <Label htmlFor="weight" value="Peso de tu mascota (kg): " />
               </div>
               <TextInput
                 id="weight"
-                placeholder="1"
+                placeholder="Kg"
                 value={weight}
                 onChange={(event) => setWeight(parseFloat(event.target.value))}
                 rightIcon={MdPets}

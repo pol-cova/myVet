@@ -641,3 +641,79 @@ bool Database::updatePetInfo(const int petID, const int weight, const int height
     sqlite3_finalize(stmt);
     return true;
 }
+
+bool Database::insertVenta(const string &date, const string &concepto, const int userID,
+                           const float monto, const float cambio, const float recibido){
+    const char* sql = "INSERT INTO Ventas (userID, DateVenta, Concepto, Monto, Recibido, Cambio) VALUES (?, ?, ?, ?, ?, ?)";
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return false;
+    }
+    // Bind the values
+    sqlite3_bind_int(stmt, 1, userID);
+    sqlite3_bind_text(stmt, 2, date.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, concepto.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_double(stmt, 4, monto);
+    sqlite3_bind_double(stmt, 5, recibido);
+    sqlite3_bind_double(stmt, 6, cambio);
+    // Exec the query
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        std::cerr << "Error inserting data: " << sqlite3_errmsg(db_) << std::endl;
+        sqlite3_finalize(stmt);
+        return false;
+    }
+    // Finalize the statement
+    sqlite3_finalize(stmt);
+    return true;
+}
+
+float Database::totalVentas(const string &date) {
+const char* sql = "SELECT SUM(Monto) FROM Ventas WHERE DateVenta = ?";
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    float total = 0.0;
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return total;
+    }
+    // Bind the values
+    sqlite3_bind_text(stmt, 1, date.c_str(), -1, SQLITE_STATIC);
+    // Exec the query
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        std::cerr << "Error executing query: " << sqlite3_errmsg(db_) << std::endl;
+        sqlite3_finalize(stmt);
+        return total;
+    }
+    // Get the total
+    total = sqlite3_column_double(stmt, 0);
+    sqlite3_finalize(stmt);
+    return total;
+}
+
+int Database::countVentas(const string &date) {
+const char* sql = "SELECT COUNT(*) FROM Ventas WHERE DateVenta = ?";
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    int count = 0;
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return count;
+    }
+    // Bind the values
+    sqlite3_bind_text(stmt, 1, date.c_str(), -1, SQLITE_STATIC);
+    // Exec the query
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        std::cerr << "Error executing query: " << sqlite3_errmsg(db_) << std::endl;
+        sqlite3_finalize(stmt);
+        return count;
+    }
+    // Get the count
+    count = sqlite3_column_int(stmt, 0);
+    sqlite3_finalize(stmt);
+    return count;
+}

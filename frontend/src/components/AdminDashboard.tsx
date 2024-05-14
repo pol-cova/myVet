@@ -10,16 +10,25 @@ import {
   Tabs,
   Button,
 } from "flowbite-react";
-import { MdPets, MdEdit } from "react-icons/md";
+import { MdPets, MdEdit, MdAttachMoney} from "react-icons/md";
+import { TbPigMoney } from "react-icons/tb";
+import { FcSupport } from "react-icons/fc";
+
+
 import {
   HiClipboardList,
   HiCalendar,
 } from "react-icons/hi";
 import { FaFileInvoiceDollar, FaFacebookMessenger, FaMedkit } from "react-icons/fa";
+import { TbReportAnalytics } from "react-icons/tb";
+
 
 // import custom modal
 import TratamientoModal from "./TratamientoModal";
 import UpdatePet from "./InfoModal";
+
+// import forms
+import VentasForm from "./VentasForm";
 
 
 import axios from "axios";
@@ -33,6 +42,8 @@ export default function AdminDashboard({ user }: { user: any }) {
   const [citas, setCitas] = useState([]);
   const [tratamiento, setTratamientos] = useState([]);
   const [facturas, setFacturas] = useState([]);
+  const [ventasCount, setVentas] = useState(0);
+  const [transac, setTransac] = useState(0);
 
 
   const [openModal, setOpenModal] = useState(false);
@@ -197,6 +208,32 @@ export default function AdminDashboard({ user }: { user: any }) {
     }
   };
 
+// get ventas
+const fetchVentas = async () => {
+  try {
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0]; // format as YYYY-MM-DD
+
+    const response = await axios.post('http://127.0.0.1:18080/venta/total', { date: formattedDate });
+    const data = response.data;
+    if (data.status !== 'success') {
+      throw new Error(data.msg);
+    }
+    console.log('Total ventas:', data.total);
+    setVentas(data.total)
+
+    const response2 = await axios.post('http://127.0.0.1:18080/venta/count', { date: formattedDate });
+    const data2 = response2.data;
+    if (data2.status !== 'success') {
+      throw new Error(data2.msg);
+    }
+    console.log('Ventas count:', data2.count);
+    setTransac(data2.count)
+    
+  } catch (error) {
+    console.error('An error occurred while fetching the ventas:', error);
+  }
+}
 
   useEffect(() => {
     fetchUsersCount();
@@ -204,6 +241,7 @@ export default function AdminDashboard({ user }: { user: any }) {
     fetchCitas();
     fetchTratamientos();
     fetchFacturas();
+    fetchVentas();
   }, []);
   return (
     <div className="antialiased bg-gray-50 dark:bg-gray-900">
@@ -510,8 +548,52 @@ export default function AdminDashboard({ user }: { user: any }) {
               </div>
             </div>
           </Tabs.Item>
+          <Tabs.Item title="Ventas" icon={MdAttachMoney}>
+          <VentasForm user={user} fetchVentas={fetchVentas} />
+          </Tabs.Item>
+          <Tabs.Item title="Finanzas" icon={TbPigMoney}>
+          <h2 className="text-lg font-semibold dark:text-white flex items-center">
+  Modulo de Ventas | {todayDate}
+  <Button className="ml-2" color="dark" >
+    <TbReportAnalytics className="mb-2 h-4 w-4"/>
+    Generar reporte del dia</Button>
+</h2>
+                <br></br>
+          <div className="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-32 md:h-20">
+            <div className="flex justify-between items-center p-4">
+              <div>
+                <p className="text-sm font-semibold dark:text-gray-300">
+                  Total de ventas hoy
+                </p>
+              </div>
+              <div className="flex items-center justify-center w-12 h-12 bg-green-200 dark:bg-green-700 rounded-full">
+                <span className="text-lg font-semibold dark:text-white">
+                  ${ventasCount}
+                </span>
+              </div>
+            </div>
+          </div>
+          <br></br>
+          <div className="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-32 md:h-20">
+            <div className="flex justify-between items-center p-4">
+              <div>
+                <p className="text-sm font-semibold dark:text-gray-300">
+                  Total de transacciones realizadas hoy
+                </p>
+              </div>
+              <div className="flex items-center justify-center w-12 h-12 bg-indigo-200 dark:bg-indigo-700 rounded-full">
+                <span className="text-lg font-semibold dark:text-white">
+                  {transac}
+                </span>
+              </div>
+            </div>
+          </div>
+          </Tabs.Item>
           <Tabs.Item  title="Mensajes" icon={FaFacebookMessenger} disabled>
             Disabled content
+          </Tabs.Item>
+          <Tabs.Item title="Soporte" disabled icon={FcSupport}>
+            Modulo de soporte 
           </Tabs.Item>
         </Tabs>
       </main>

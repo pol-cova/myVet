@@ -180,6 +180,18 @@ public:
     bool updateFacturaStatus(const int facturaID);
 
 
+    // modulo de registrar ventas
+    bool insertVenta(const string &date, const string &concepto, const int userID,
+                     const float monto, const float cambio, const float recibido);
+
+    // total of ventas of the day
+    float totalVentas(const string &date);
+    // count ventas of day
+    int countVentas(const string &date);
+
+
+
+
 
 
 

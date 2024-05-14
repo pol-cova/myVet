@@ -68,9 +68,9 @@ function App() {
                   Agendar cita
             </Button>
         </div>
-        <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
-            <img src="./src/assets/dog.svg" alt="mockup" />
-        </div>                
+        <div className="lg:mt-0 lg:col-span-5 lg:flex">
+    <img src="./src/assets/dog.svg" alt="mockup" />
+</div>          
     </div>
 </section>
                     </>
