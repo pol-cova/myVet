@@ -717,3 +717,27 @@ const char* sql = "SELECT COUNT(*) FROM Ventas WHERE DateVenta = ?";
     sqlite3_finalize(stmt);
     return count;
 }
+
+vector<PetTratamiento> Database::getTratamientosByPetID(const int petID) {
+    vector<PetTratamiento> tratamientos;
+    const char* sql = "SELECT Tratamientos.Tratamiento, Tratamientos.DateOfTratamiento, Tratamientos.Cost FROM Tratamientos WHERE Tratamientos.PetID = ?";
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(db_) << std::endl;
+        return tratamientos;
+    }
+    // Bind the values
+    sqlite3_bind_int(stmt, 1, petID);
+    // Exec the query
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        string tratamiento = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        string date = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        float cost = sqlite3_column_double(stmt, 2);
+        tratamientos.emplace_back(petID,tratamiento, date, cost);
+    }
+
+    // Finalize the statement
+    sqlite3_finalize(stmt);
+    return tratamientos;
+}

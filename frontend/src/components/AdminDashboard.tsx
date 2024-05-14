@@ -33,6 +33,9 @@ import VentasForm from "./VentasForm";
 
 import axios from "axios";
 
+// import report
+import report from '../assets/reporte.pdf';
+
 export default function AdminDashboard({ user }: { user: any }) {
   const [petCount, setPetCount] = useState(0);
   const [citaCount, setcitaCount] = useState(0);
@@ -233,6 +236,11 @@ const fetchVentas = async () => {
   } catch (error) {
     console.error('An error occurred while fetching the ventas:', error);
   }
+}
+
+// handle dowload report to user
+const downloadReport = () => {
+  window.open(report);
 }
 
   useEffect(() => {
@@ -554,7 +562,7 @@ const fetchVentas = async () => {
           <Tabs.Item title="Finanzas" icon={TbPigMoney}>
           <h2 className="text-lg font-semibold dark:text-white flex items-center">
   Modulo de Ventas | {todayDate}
-  <Button className="ml-2" color="dark" >
+  <Button className="ml-2" color="dark" onClick={downloadReport}>
     <TbReportAnalytics className="mb-2 h-4 w-4"/>
     Generar reporte del dia</Button>
 </h2>

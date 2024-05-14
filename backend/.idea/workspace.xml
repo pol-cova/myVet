@@ -31,7 +31,6 @@
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/api" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/api" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/Database.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/core/Database.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/Database.h" beforeDir="false" afterPath="$PROJECT_DIR$/core/Database.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/App.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/src/components/AdminDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/AdminDashboard.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -123,7 +122,7 @@
       <workItem from="1715540582967" duration="21318000" />
       <workItem from="1715601073232" duration="22105000" />
       <workItem from="1715656306062" duration="1943000" />
-      <workItem from="1715698829588" duration="2929000" />
+      <workItem from="1715698829588" duration="6699000" />
     </task>
     <servers />
   </component>

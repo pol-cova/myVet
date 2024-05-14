@@ -656,6 +656,43 @@ int main()
                         return crow::response(200, res);
                     });
 
+    // get tratamiento of pet based on petID
+    CROW_ROUTE(app, "/tratamiento/pet")
+            .methods(crow::HTTPMethod::POST)
+                    ([](const crow::request &req){
+                        auto json_payload = crow::json::load(req.body);
+
+                        if (!json_payload){
+                            return crow::response(400, "Invalid JSON");
+                        }
+
+                        int petID = json_payload["petID"].i();
+
+                        // db logic
+                        Database db("../core/app.db");
+                        std::vector<PetTratamiento> tratamientos = db.getTratamientosByPetID(petID);
+
+                        crow::json::wvalue res({
+                                                       // return success message
+                                                       {"status", "success"},
+                                                       {"msg", "Tratamientos retrieved successfully"}
+                                               });
+
+                        // Create a JSON array for tratamientos
+                        std::vector<crow::json::wvalue> tratamientosArray;
+                        for (const auto& tratamiento : tratamientos) {
+                            crow::json::wvalue tratamientoJson;
+                            tratamientoJson["petID"] = tratamiento.petID;
+                            tratamientoJson["tratamiento"] = tratamiento.tratamiento;
+                            tratamientoJson["date"] = tratamiento.date;
+                            tratamientoJson["cost"] = tratamiento.cost;
+                            tratamientosArray.emplace_back(tratamientoJson);
+                        }
+                        res["tratamientos"] = std::move(tratamientosArray);
+
+                        return crow::response(200, res);
+                    });
+
     // Facturas
     // Create Factura
     CROW_ROUTE(app, "/factura/create")

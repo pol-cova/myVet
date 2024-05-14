@@ -10,6 +10,7 @@ import axios from "axios";
 import PetModal from "./PetModal";
 import CitaModal from "./CitaModal";
 import DelPetModal from "./DelPetModal";
+import PetInfoModal from "./PetInfoModal";
 
 // imgs
 import perroImg from "../assets/perro-1.jpg";
@@ -24,6 +25,7 @@ export default function UserDashboard({ user }: { user: any }) {
   const [openModalCita, setOpenModalCita] = useState(false);
   const [openModalPet, setOpenModalPet] = useState(false);
   const [openModalDelPet, setOpenModalDelPet] = useState(false);
+  const [oepnModalInfo, setOpenModalInfo] = useState(false);
 
 
   // OnClose PetModal
@@ -40,6 +42,11 @@ export default function UserDashboard({ user }: { user: any }) {
   const onCloseDelPetModal = () => {
     setOpenModalDelPet(false);
   };
+
+  // OnClose ModalInfo
+  const onCloseModalInfo = () =>{
+    setOpenModalInfo(false);
+  }
 
   const fetchPetCount = async () => {
     try {
@@ -76,6 +83,9 @@ export default function UserDashboard({ user }: { user: any }) {
       console.error("Failed to fetch pets:", error);
     }
   };
+
+
+
 
   const getImageSrc = (type: string) => {
     switch (type) {
@@ -201,9 +211,15 @@ export default function UserDashboard({ user }: { user: any }) {
                     </span>
                   </div>
                 </div>
-                <a className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
-                  Ver detalles
-                </a>
+                <PetInfoModal
+                  openModal={oepnModalInfo}
+                  onCloseModal={onCloseModalInfo}
+                  petId={pet.petID}
+                />
+                <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto"
+                onClick={() => setOpenModalInfo(true)}>
+                  Ver Tratamientos
+                </Button>
               </Card>
             ))
           )}

@@ -60,6 +60,17 @@ public:
             :tratamientoID(tratamientoId), tratamiento(tratamiento), date(date), petID(petID), userID(userID), medID(medID), cost(cost), OwnerName(ownerName), PetName(petName), Status(status) {};;
 };
 
+class PetTratamiento{
+public:
+    int petID;
+    std::string tratamiento;
+    std::string date;
+    float cost;
+
+    PetTratamiento(int petID, const std::string &tratamiento, const std::string &date, float cost)
+            : petID(petID),  tratamiento(tratamiento), date(date), cost(cost) {}
+};
+
 class Factura {
 public:
     int FacturaID;
@@ -188,6 +199,10 @@ public:
     float totalVentas(const string &date);
     // count ventas of day
     int countVentas(const string &date);
+
+    // get tratamiento of pet by pet id
+    vector<PetTratamiento> getTratamientosByPetID(const int petID);
+
 
 
 
