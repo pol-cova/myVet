@@ -1,4 +1,4 @@
-# MyVet 🐾
+# MyVet
 
 Simple, Fast, and Secure Veterinary Administration System. Designed to streamline clinical workflows, client records, and appointment schedules.
 
@@ -11,13 +11,13 @@ Simple, Fast, and Secure Veterinary Administration System. Designed to streamlin
 
 ---
 
-## 🌟 Overview
+## Overview
 
 **MyVet** is an all-in-one veterinary clinic management application that integrates a blazing-fast **C++ / Crow** backend with a modern **React / TypeScript** frontend. It provides a robust, easy-to-use, and highly secure environment for veterinary staff, medical practitioners, and pet owners.
 
 ---
 
-## ✨ Features
+## Features
 
 - **Patient Management:** Create, track, and update patient information (age, breed, medical history, height, and weight).
 - **Appointment Scheduling:** Avoid scheduling conflicts with real-time, validation-backed appointment booking.
@@ -28,7 +28,7 @@ Simple, Fast, and Secure Veterinary Administration System. Designed to streamlin
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Component | Technology | Description |
 |---|---|---|
@@ -42,7 +42,7 @@ Simple, Fast, and Secure Veterinary Administration System. Designed to streamlin
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 ├── backend/            # C++ Crow Backend
@@ -63,7 +63,7 @@ Simple, Fast, and Secure Veterinary Administration System. Designed to streamlin
 
 ---
 
-## 🚀 Quick Start / Local Installation
+## Quick Start / Local Installation
 
 ### Prerequisites
 - **Node.js** (v16+) & **npm** or **yarn**
@@ -117,7 +117,7 @@ Simple, Fast, and Secure Veterinary Administration System. Designed to streamlin
 
 ---
 
-## 🔒 Security Audit & Best Practices Implemented
+## Security Audit & Best Practices Implemented
 
 - **Prepared Statements (SQLi Prevention):** Every SQL query is fully parametrized using `sqlite3_prepare_v2` and bound dynamically, ensuring absolute safety against SQL Injection attacks.
 - **Secure Password Hashing:** User passwords are encrypted with unique random 16-character salts and SHA-256, protecting credentials at rest.
@@ -127,7 +127,7 @@ Simple, Fast, and Secure Veterinary Administration System. Designed to streamlin
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! If you have suggestions or want to add a feature:
 1. **Fork** the repository.
@@ -138,10 +138,10 @@ Contributions are welcome! If you have suggestions or want to add a feature:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)** license. See the [LICENSE](https://creativecommons.org/licenses/by-nc/4.0/) details for commercial restrictions.
 
-## ✉️ Contact & Support
+## Contact & Support
 
 Created by [Paul Contreras](https://github.com/pol-cova/). For inquiries, feel free to drop a message!
