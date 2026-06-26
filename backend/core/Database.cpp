@@ -87,7 +87,7 @@ string Database::getUserToken(const string &username) {
     string mail = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
     sqlite3_finalize(stmt);
     // convert userID to string
-    string ID = to_string(userID);
+    string ID = std::to_string(userID);
     // Generate the JWT token
     return generateJWT(user, role, ID, mail);
 }
@@ -739,4 +739,79 @@ vector<PetTratamiento> Database::getTratamientosByPetID(const int petID) {
     // Finalize the statement
     sqlite3_finalize(stmt);
     return tratamientos;
+}
+
+void Database::initializeSchema() {
+    const char* sql =
+        "CREATE TABLE IF NOT EXISTS Users ("
+        "  UserID INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "  Username TEXT UNIQUE,"
+        "  Password TEXT,"
+        "  Salt TEXT,"
+        "  Email TEXT UNIQUE,"
+        "  Rol TEXT,"
+        "  Phone TEXT,"
+        "  Name TEXT"
+        ");"
+        "CREATE TABLE IF NOT EXISTS Pets ("
+        "  PetID INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "  Name TEXT,"
+        "  Age INTEGER,"
+        "  Tipo TEXT,"
+        "  Genre TEXT,"
+        "  UserID INTEGER,"
+        "  Weight INTEGER,"
+        "  Height INTEGER,"
+        "  FOREIGN KEY(UserID) REFERENCES Users(UserID)"
+        ");"
+        "CREATE TABLE IF NOT EXISTS Appointments ("
+        "  AppointmentID INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "  PetName TEXT,"
+        "  AppointmentDate TEXT,"
+        "  AppointmentTime TEXT,"
+        "  Email TEXT,"
+        "  Phone TEXT,"
+        "  Service TEXT,"
+        "  OwnerName TEXT,"
+        "  Status INTEGER DEFAULT 0"
+        ");"
+        "CREATE TABLE IF NOT EXISTS Tratamientos ("
+        "  TratamientoID INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "  Tratamiento TEXT,"
+        "  DateOfTratamiento TEXT,"
+        "  PetID INTEGER,"
+        "  OwnerUserID INTEGER,"
+        "  MedUserID INTEGER,"
+        "  Cost REAL,"
+        "  Status INTEGER DEFAULT 0,"
+        "  FOREIGN KEY(PetID) REFERENCES Pets(PetID),"
+        "  FOREIGN KEY(OwnerUserID) REFERENCES Users(UserID)"
+        ");"
+        "CREATE TABLE IF NOT EXISTS Facturas ("
+        "  FacturaID INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "  TratamientoID INTEGER,"
+        "  TotalCost REAL,"
+        "  DateOfEmision TEXT,"
+        "  OwnerID INTEGER,"
+        "  Status INTEGER DEFAULT 0,"
+        "  FOREIGN KEY(TratamientoID) REFERENCES Tratamientos(TratamientoID),"
+        "  FOREIGN KEY(OwnerID) REFERENCES Users(UserID)"
+        ");"
+        "CREATE TABLE IF NOT EXISTS Ventas ("
+        "  VentaID INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "  userID INTEGER,"
+        "  DateVenta TEXT,"
+        "  Concepto TEXT,"
+        "  Monto REAL,"
+        "  Recibido REAL,"
+        "  Cambio REAL,"
+        "  FOREIGN KEY(userID) REFERENCES Users(UserID)"
+        ");";
+
+    char* errMsg = nullptr;
+    int rc = sqlite3_exec(db_, sql, nullptr, nullptr, &errMsg);
+    if (rc != SQLITE_OK) {
+        std::cerr << "SQL error initializing schema: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
 }

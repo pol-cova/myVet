@@ -67,10 +67,22 @@ std::string hashPassword(const std::string password, const std::string salt) {
     return ss.str();
 }
 
+// Constant-time string comparison to prevent timing attacks
+bool constantTimeCompare(const std::string& a, const std::string& b) {
+    if (a.length() != b.length()) {
+        return false;
+    }
+    volatile char result = 0;
+    for (size_t i = 0; i < a.length(); ++i) {
+        result |= (a[i] ^ b[i]);
+    }
+    return result == 0;
+}
+
 // Function to validate a password against a hash with salt
 bool validatePassword(const std::string password, const std::string storedHash, const std::string storedSalt) {
     std::string inputHash = hashPassword(password, storedSalt);
-    return inputHash == storedHash;
+    return constantTimeCompare(inputHash, storedHash);
 }
 
 // Function to generate a JWT token
@@ -99,7 +111,11 @@ std::string generateJWT(const std::string username, const std::string role, cons
 
     // Get secret dynamically
     const char* env_secret = std::getenv("JWT_SECRET");
-    std::string secret = (env_secret && std::string(env_secret).length() > 0) ? std::string(env_secret) : "secret";
+    if (!env_secret || std::string(env_secret).empty()) {
+        std::cerr << "FATAL: JWT_SECRET environment variable is not set!" << std::endl;
+        throw std::runtime_error("JWT_SECRET environment variable is required.");
+    }
+    std::string secret = env_secret;
 
     // Sign the token with the HS256 algorithm
     return token.sign(jwt::algorithm::hs256(secret));
@@ -115,7 +131,11 @@ bool verifyJWT(const std::string& token_str, std::string& username, std::string&
         
         // Get secret dynamically
         const char* env_secret = std::getenv("JWT_SECRET");
-        std::string secret = (env_secret && std::string(env_secret).length() > 0) ? std::string(env_secret) : "secret";
+        if (!env_secret || std::string(env_secret).empty()) {
+            std::cerr << "FATAL: JWT_SECRET environment variable is not set!" << std::endl;
+            throw std::runtime_error("JWT_SECRET environment variable is required.");
+        }
+        std::string secret = env_secret;
         
         auto verifier = jwt::verify()
                 .allow_algorithm(jwt::algorithm::hs256(secret))

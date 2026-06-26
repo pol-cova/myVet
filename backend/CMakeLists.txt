@@ -22,19 +22,12 @@ include_directories(/usr/local/Cellar/asio/1.28.1/include)
 find_package(SQLite3 REQUIRED)
 
 # Define the backend target
-add_executable(backend main.cpp)
-
-# Define the api target
-add_executable(api api.cpp)
+add_executable(myVetBackend api.cpp)
 
 
 # Link against OpenSSL
-target_link_libraries(backend OpenSSL::Crypto)
-# Link against OpenSSL
-target_link_libraries(api OpenSSL::Crypto)
+target_link_libraries(myVetBackend OpenSSL::Crypto)
 
 
 # Link against SQLite3
-target_link_libraries(backend SQLite::SQLite3)
-# Link against SQLite3
-target_link_libraries(api SQLite::SQLite3)
+target_link_libraries(myVetBackend SQLite::SQLite3)

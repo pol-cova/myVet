@@ -89,6 +89,8 @@ public:
         int rc = sqlite3_open(dbFileName.c_str(), &db_);
         if (rc) {
             std::cerr << "Error opening SQLite database: " << sqlite3_errmsg(db_) << std::endl;
+        } else {
+            initializeSchema();
         }
     }
 
@@ -166,6 +168,7 @@ public:
     std::vector<PetTratamiento> getTratamientosByPetID(const int petID);
 
 private:
+    void initializeSchema();
     std::string dbFileName_;
     sqlite3* db_;
 };

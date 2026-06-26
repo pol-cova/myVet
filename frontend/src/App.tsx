@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Button } from 'flowbite-react';
 import NavMenu from './components/Navbar'
@@ -17,22 +16,6 @@ import ServiceView from './pages/ServicesView.tsx';
 
 // import modal
 import CitaModalHome from './components/CitaModalHome.tsx';
-
-function RedirectToHome() {
-    const navigate = useNavigate();
-    
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            navigate('/home');
-        } else{
-            navigate('/login')
-        }
-    }, [navigate]);
-
-    return null;
-}
 
 function App() {
     const [openModalCita, setOpenModalCita] = useState(false);

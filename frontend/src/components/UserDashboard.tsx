@@ -20,7 +20,7 @@ import exoticoImg from "../assets/exo-2.jpg";
 export default function UserDashboard({ user }: { user: any }) {
   const [petCount, setPetCount] = useState(0);
   const [citaCount, setcitaCount] = useState(0);
-  const [pets, setPets] = useState([]);
+  const [pets, setPets] = useState<any[]>([]);
   // modal settings
   const [openModalCita, setOpenModalCita] = useState(false);
   const [openModalPet, setOpenModalPet] = useState(false);

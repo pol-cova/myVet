@@ -12,3 +12,10 @@
 .idea/
 .DS_Store
 **/.DS_Store
+
+# Build and compilation outputs
+build/
+cmake-build-debug/
+a.out
+**/build/
+**/cmake-build-debug/

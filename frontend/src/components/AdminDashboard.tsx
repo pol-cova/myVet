@@ -41,10 +41,10 @@ export default function AdminDashboard({ user }: { user: any }) {
   const [citaCount, setcitaCount] = useState(0);
   const [citaDoneCount, setcitaDoneCount] = useState(0);
   const [userCount, setUserCount] = useState(0);
-  const [pets, setPets] = useState([]);
-  const [citas, setCitas] = useState([]);
-  const [tratamiento, setTratamientos] = useState([]);
-  const [facturas, setFacturas] = useState([]);
+  const [pets, setPets] = useState<any[]>([]);
+  const [citas, setCitas] = useState<any[]>([]);
+  const [tratamiento, setTratamientos] = useState<any[]>([]);
+  const [facturas, setFacturas] = useState<any[]>([]);
   const [ventasCount, setVentas] = useState(0);
   const [transac, setTransac] = useState(0);
 

@@ -36,6 +36,16 @@ bool isRequestAuthorized(const crow::request& req, std::string& username, std::s
 
 int main()
 {
+    // Populate bookedHours on startup from existing database entries
+    {
+        Database db("../core/app.db");
+        auto appointments = db.getAppointments();
+        for (const auto& app : appointments) {
+            std::string selectedHour = app.AppointmentDate + " " + app.AppointmentTime;
+            bookedHours.insert(selectedHour);
+        }
+    }
+
     // Enable CORS
     crow::App<crow::CORSHandler> app;
     // custom cors

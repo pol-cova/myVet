@@ -1,14 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  Modal,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeadCell,
-  TableRow,
-} from "flowbite-react";
+import { Modal } from "flowbite-react";
 
 export default function PetInfoModal({
   openModal,
@@ -20,7 +12,7 @@ export default function PetInfoModal({
   petId: any;
 }) {
   // fetch petTrat with petID -> int
-  const [petTrat, setPetTrat] = useState([]);
+  const [petTrat, setPetTrat] = useState<any[]>([]);
 
   // fetch when open modal
   useEffect(() => {
