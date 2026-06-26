@@ -9,23 +9,23 @@
 #include "spark.h"
 
 // Function to generate a random salt string
-string generate_salt()
+std::string generate_salt()
 {
     // Define the character set from which the salt will be generated
-    const string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     // Length of the salt
     const int len = 16;
     // Initialize an empty string to hold the salt
-    string salt;
+    std::string salt;
     // Reserve memory for the salt to avoid reallocations
     salt.reserve(len);
     // Initialize a random device for seeding the random number generator
-    random_device rd;
+    std::random_device rd;
     // Initialize the Mersenne Twister pseudo-random number generator with a seed from random_device
-    mt19937 gen(rd());
+    std::mt19937 gen(rd());
 
     // Define a uniform distribution to generate random indices into the charset
-    uniform_int_distribution<int> distribution(0, charset.size() - 1);
+    std::uniform_int_distribution<int> distribution(0, static_cast<int>(charset.size() - 1));
     
     // Loop to generate each character of the salt
     for (int i = 0; i < len; i++)
@@ -38,10 +38,9 @@ string generate_salt()
     return salt;
 }
 
-
-string hashPassword(const string password, const string salt) {
+std::string hashPassword(const std::string password, const std::string salt) {
     // Concatenate password and salt
-    string data = password + salt;
+    std::string data = password + salt;
 
     // Create a new digest context
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
@@ -61,20 +60,21 @@ string hashPassword(const string password, const string salt) {
     EVP_MD_CTX_free(mdctx);
 
     // Convert the hash to a hexadecimal string
-    stringstream ss;
-    for (int i = 0; i < hash_len; ++i) {
-        ss << hex << setw(2) << setfill('0') << (int)hash[i];
+    std::stringstream ss;
+    for (unsigned int i = 0; i < hash_len; ++i) {
+        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(hash[i]);
     }
     return ss.str();
 }
+
 // Function to validate a password against a hash with salt
-bool validatePassword(const string password, const string storedHash, const string storedSalt) {
-    string inputHash = hashPassword(password, storedSalt);
+bool validatePassword(const std::string password, const std::string storedHash, const std::string storedSalt) {
+    std::string inputHash = hashPassword(password, storedSalt);
     return inputHash == storedHash;
 }
 
 // Function to generate a JWT token
-string generateJWT(const string username, const string role, const string userID, const string mail) {
+std::string generateJWT(const std::string username, const std::string role, const std::string userID, const std::string mail) {
     // Create a new JWT builder
     auto token = jwt::create()
             .set_type("JWS")
@@ -97,6 +97,47 @@ string generateJWT(const string username, const string role, const string userID
     auto expiration_time = std::chrono::system_clock::now() + std::chrono::hours(1);
     token.set_expires_at(expiration_time);
 
-    // Sign the token with the HS256 algorithm and the secret "secret"
-    return token.sign(jwt::algorithm::hs256("secret"));
+    // Get secret dynamically
+    const char* env_secret = std::getenv("JWT_SECRET");
+    std::string secret = (env_secret && std::string(env_secret).length() > 0) ? std::string(env_secret) : "secret";
+
+    // Sign the token with the HS256 algorithm
+    return token.sign(jwt::algorithm::hs256(secret));
+}
+
+// Function to verify a JWT token and extract claims
+bool verifyJWT(const std::string& token_str, std::string& username, std::string& role, std::string& userID, std::string& mail) {
+    try {
+        if (token_str.empty()) {
+            return false;
+        }
+        auto decoded = jwt::decode(token_str);
+        
+        // Get secret dynamically
+        const char* env_secret = std::getenv("JWT_SECRET");
+        std::string secret = (env_secret && std::string(env_secret).length() > 0) ? std::string(env_secret) : "secret";
+        
+        auto verifier = jwt::verify()
+                .allow_algorithm(jwt::algorithm::hs256(secret))
+                .with_issuer("authSpark-v1");
+        
+        verifier.verify(decoded);
+        
+        if (decoded.has_payload_claim("username")) {
+            username = decoded.get_payload_claim("username").as_string();
+        }
+        if (decoded.has_payload_claim("role")) {
+            role = decoded.get_payload_claim("role").as_string();
+        }
+        if (decoded.has_payload_claim("userID")) {
+            userID = decoded.get_payload_claim("userID").as_string();
+        }
+        if (decoded.has_payload_claim("mail")) {
+            mail = decoded.get_payload_claim("mail").as_string();
+        }
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "JWT verification error: " << e.what() << std::endl;
+        return false;
+    }
 }

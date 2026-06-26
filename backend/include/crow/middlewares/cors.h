@@ -141,6 +141,14 @@ namespace crow
         {
             auto& rule = find_rule(req.url);
             rule.apply(res);
+
+            std::string req_origin = req.get_header_value("Origin");
+            if (!req_origin.empty()) {
+                if (req_origin == "http://localhost:5173" || req_origin == "http://127.0.0.1:5173" ||
+                    req_origin.starts_with("http://localhost:") || req_origin.starts_with("http://127.0.0.1:")) {
+                    res.set_header("Access-Control-Allow-Origin", req_origin);
+                }
+            }
         }
 
         /// Handle CORS on a specific prefix path

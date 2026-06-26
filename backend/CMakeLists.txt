@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 project(backend)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
 # Include directories for custom headers
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -13,6 +13,9 @@ find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 # Include Asio headers
+include_directories(/opt/homebrew/opt/asio/include)
+include_directories(/opt/homebrew/include)
+include_directories(/usr/local/include)
 include_directories(/usr/local/Cellar/asio/1.28.1/include)
 
 # Find SQLite3 package

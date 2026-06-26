@@ -20,6 +20,19 @@
 // import custom utils library
 #include "utils/Citas.cpp"
 
+bool isRequestAuthorized(const crow::request& req, std::string& username, std::string& role, std::string& userID, std::string& mail) {
+    std::string auth_header = req.get_header_value("Authorization");
+    if (auth_header.empty()) {
+        return false;
+    }
+    std::string token;
+    if (auth_header.starts_with("Bearer ")) {
+        token = auth_header.substr(7);
+    } else {
+        token = auth_header;
+    }
+    return verifyJWT(token, username, role, userID, mail);
+}
 
 int main()
 {
@@ -36,7 +49,8 @@ int main()
             "Origin",
             "Content-Type",
             "Authorization",
-            "Refresh"
+            "Refresh",
+            "X-Requested-With"
     )
     .methods(
             crow::HTTPMethod::GET,
@@ -82,12 +96,7 @@ int main()
                             res["status"] = "Unauthorized";
                             res["msg"] = "Authentication failed";
 
-                            crow::response response(401, "Unauthorized");
-                            response.set_header("Access-Control-Allow-Origin", "*");
-                            response.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-                            response.set_header("Access-Control-Allow-Headers", "Content-Type, X-Custom-Header");
-
-                            return response;
+                            return crow::response(401, res);
                         }
 
                         // generate a JWT token
@@ -98,12 +107,7 @@ int main()
                         res["msg"] = "User logged in successfully";
                         res["token"] = token;
 
-                        crow::response response(200, res);
-                        response.set_header("Access-Control-Allow-Origin", "*");
-                        response.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-                        response.set_header("Access-Control-Allow-Headers", "Content-Type, X-Custom-Header");
-
-                        return response;
+                        return crow::response(200, res);
                     });
     // Register
     CROW_ROUTE(app, "/auth/register")
@@ -121,6 +125,13 @@ int main()
                         std::string mail = json_payload["mail"].s();
                         std::string phone = json_payload["phone"].s();
                         std::string password = json_payload["password"].s();
+
+                        if (name.empty() || user.empty() || mail.empty() || phone.empty() || password.empty()) {
+                            return crow::response(400, "All fields are required and cannot be empty.");
+                        }
+                        if (password.length() < 6) {
+                            return crow::response(400, "Password must be at least 6 characters.");
+                        }
 
                         // auth logic
                         // generate a random salt
@@ -152,6 +163,13 @@ int main()
     CROW_ROUTE(app, "/users/all")
             .methods(crow::HTTPMethod::GET)
                     ([](const crow::request &req){
+                        std::string username, role, userID, mail;
+                        if (!isRequestAuthorized(req, username, role, userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
                         // db logic
                         Database db("../core/app.db");
                         int count = db.countAllUsers();
@@ -172,6 +190,10 @@ int main()
     CROW_ROUTE(app, "/pet/add")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, token_userID, mail;
+                        if (!isRequestAuthorized(req, username, role, token_userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -183,6 +205,14 @@ int main()
                         std::string type = json_payload["type"].s();
                         std::string genre = json_payload["genre"].s();
                         int userID = json_payload["userID"].i();
+
+                        if (role != "admin" && std::to_string(userID) != token_userID) {
+                            return crow::response(403, "Forbidden");
+                        }
+
+                        if (name.empty() || age < 0 || type.empty() || genre.empty() || userID <= 0) {
+                            return crow::response(400, "Invalid pet data: fields cannot be empty, and age/userID must be positive.");
+                        }
 
                         // db logic
                         Database db("../core/app.db");
@@ -204,6 +234,10 @@ int main()
     CROW_ROUTE(app, "/pet/count")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, token_userID, mail;
+                        if (!isRequestAuthorized(req, username, role, token_userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -211,6 +245,10 @@ int main()
                         }
 
                         int userID = json_payload["userID"].i();
+
+                        if (role != "admin" && std::to_string(userID) != token_userID) {
+                            return crow::response(403, "Forbidden");
+                        }
 
                         // db logic
                         Database db("../core/app.db");
@@ -230,6 +268,10 @@ int main()
     CROW_ROUTE(app, "/pet/get")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, token_userID, mail;
+                        if (!isRequestAuthorized(req, username, role, token_userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -237,6 +279,10 @@ int main()
                         }
 
                         int userID = json_payload["userID"].i();
+
+                        if (role != "admin" && std::to_string(userID) != token_userID) {
+                            return crow::response(403, "Forbidden");
+                        }
 
                         // db logic
                         Database db("../core/app.db");
@@ -268,6 +314,10 @@ int main()
     CROW_ROUTE(app, "/pet/delete")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, token_userID, mail;
+                        if (!isRequestAuthorized(req, username, role, token_userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -278,6 +328,10 @@ int main()
 
                         // db logic
                         Database db("../core/app.db");
+                        int petOwnerID = db.getUserIDFromPetID(petID);
+                        if (role != "admin" && std::to_string(petOwnerID) != token_userID) {
+                            return crow::response(403, "Forbidden");
+                        }
                         bool status = db.deletePet(petID);
 
                         if (!status){
@@ -297,6 +351,13 @@ int main()
     CROW_ROUTE(app, "/pet/all")
             .methods(crow::HTTPMethod::GET)
                     ([](const crow::request &req){
+                        std::string username, role, userID, mail;
+                        if (!isRequestAuthorized(req, username, role, userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
                         // db logic
                         Database db("../core/app.db");
                         std::vector<Pet> pets = db.getPets();
@@ -331,6 +392,10 @@ int main()
     CROW_ROUTE(app, "/pet/owner")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, token_userID, mail;
+                        if (!isRequestAuthorized(req, username, role, token_userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -341,6 +406,10 @@ int main()
 
                         // db logic
                         Database db("../core/app.db");
+                        int petOwnerID = db.getUserIDFromPetID(petID);
+                        if (role != "admin" && std::to_string(petOwnerID) != token_userID) {
+                            return crow::response(403, "Forbidden");
+                        }
                         std::string owner = db.getOwnerFromPetID(petID);
                         int userID = db.getUserIDFromPetID(petID);
 
@@ -359,6 +428,10 @@ int main()
     CROW_ROUTE(app, "/pet/update")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, token_userID, mail;
+                        if (!isRequestAuthorized(req, username, role, token_userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -369,8 +442,16 @@ int main()
                         int weight = json_payload["weight"].i();
                         int height = json_payload["height"].i();
 
+                        if (petID <= 0 || weight <= 0 || height <= 0) {
+                            return crow::response(400, "Invalid pet info: petID, weight, and height must be positive.");
+                        }
+
                         // db logic
                         Database db("../core/app.db");
+                        int petOwnerID = db.getUserIDFromPetID(petID);
+                        if (role != "admin" && std::to_string(petOwnerID) != token_userID) {
+                            return crow::response(403, "Forbidden");
+                        }
                         bool status = db.updatePetInfo(petID, weight, height);
 
                         if (!status){
@@ -435,6 +516,10 @@ int main()
                         std::string ownerName = json["ownerName"].s();
                         std::string service = json["service"].s();
 
+                        if (hour.empty() || date.empty() || petName.empty() || phone.empty() || email.empty() || ownerName.empty() || service.empty()) {
+                            return crow::response(400, "All fields are required and cannot be empty.");
+                        }
+
                         // Check if the selected hour is available
                         std::string selectedHour = date + " " + hour;
 
@@ -467,6 +552,10 @@ int main()
     CROW_ROUTE(app, "/appointment/count")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, userID, token_mail;
+                        if (!isRequestAuthorized(req, username, role, userID, token_mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -474,6 +563,10 @@ int main()
                         }
 
                         std::string mail = json_payload["mail"].s();
+
+                        if (role != "admin" && mail != token_mail) {
+                            return crow::response(403, "Forbidden");
+                        }
 
                         // db logic
                         Database db("../core/app.db");
@@ -493,6 +586,13 @@ int main()
     CROW_ROUTE(app, "/appointment/all")
             .methods(crow::HTTPMethod::GET)
                     ([](const crow::request &req){
+                        std::string username, role, userID, mail;
+                        if (!isRequestAuthorized(req, username, role, userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
 
                         // db logic
                         Database db("../core/app.db");
@@ -532,6 +632,13 @@ int main()
     CROW_ROUTE(app, "/appointment/complete")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, userID, mail;
+                        if (!isRequestAuthorized(req, username, role, userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -561,6 +668,13 @@ int main()
     CROW_ROUTE(app, "/tratamiento/create")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, userID_token, mail;
+                        if (!isRequestAuthorized(req, username, role, userID_token, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -595,6 +709,13 @@ int main()
     CROW_ROUTE(app, "/tratamiento/all")
             .methods(crow::HTTPMethod::GET)
                     ([](const crow::request &req){
+                        std::string username, role, userID, mail;
+                        if (!isRequestAuthorized(req, username, role, userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
 
                         // db logic
                         Database db("../core/app.db");
@@ -631,6 +752,13 @@ int main()
     CROW_ROUTE(app, "/tratamiento/complete")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, userID, mail;
+                        if (!isRequestAuthorized(req, username, role, userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -660,6 +788,10 @@ int main()
     CROW_ROUTE(app, "/tratamiento/pet")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, token_userID, mail;
+                        if (!isRequestAuthorized(req, username, role, token_userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -670,6 +802,10 @@ int main()
 
                         // db logic
                         Database db("../core/app.db");
+                        int petOwnerID = db.getUserIDFromPetID(petID);
+                        if (role != "admin" && std::to_string(petOwnerID) != token_userID) {
+                            return crow::response(403, "Forbidden");
+                        }
                         std::vector<PetTratamiento> tratamientos = db.getTratamientosByPetID(petID);
 
                         crow::json::wvalue res({
@@ -698,6 +834,13 @@ int main()
     CROW_ROUTE(app, "/factura/create")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, userID_token, mail;
+                        if (!isRequestAuthorized(req, username, role, userID_token, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -730,6 +873,13 @@ int main()
     CROW_ROUTE(app, "/factura/complete")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, userID, mail;
+                        if (!isRequestAuthorized(req, username, role, userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -759,6 +909,13 @@ int main()
     CROW_ROUTE(app, "/factura/all")
             .methods(crow::HTTPMethod::GET)
                     ([](const crow::request &req){
+                        std::string username, role, userID, mail;
+                        if (!isRequestAuthorized(req, username, role, userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
 
                         // db logic
                         Database db("../core/app.db");
@@ -790,6 +947,13 @@ int main()
     CROW_ROUTE(app, "/venta/create")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, userID_token, mail;
+                        if (!isRequestAuthorized(req, username, role, userID_token, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -825,6 +989,13 @@ int main()
     CROW_ROUTE(app, "/venta/total")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, userID, mail;
+                        if (!isRequestAuthorized(req, username, role, userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){
@@ -852,6 +1023,13 @@ int main()
     CROW_ROUTE(app, "/venta/count")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
+                        std::string username, role, userID, mail;
+                        if (!isRequestAuthorized(req, username, role, userID, mail)) {
+                            return crow::response(401, "Unauthorized");
+                        }
+                        if (role != "admin") {
+                            return crow::response(403, "Forbidden");
+                        }
                         auto json_payload = crow::json::load(req.body);
 
                         if (!json_payload){

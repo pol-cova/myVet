@@ -1,8 +1,7 @@
-//
-// Created by Paul Contreras on 28/04/24.
-//
-
 #include "Database.h"
+
+using std::string;
+using std::vector;
 
 // insert user operation
 bool Database::insertUser(const string &username, const string &password, const string &salt, const string &email,

@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <sqlite3.h>
 
 class Pet {
@@ -16,7 +17,6 @@ public:
     int age;
     std::string type;
     std::string genre;
-    // Owner Name and Owner id
     std::string OwnerName;
     int OwnerID;
 
@@ -56,11 +56,11 @@ public:
     std::string PetName;
     int Status;
 
-    Tratamiento(const int tratamientoId,const std::string &tratamiento, const std::string &date, int petID, int userID, int medID, float cost, const std::string &ownerName, const std::string &petName, const int status)
-            :tratamientoID(tratamientoId), tratamiento(tratamiento), date(date), petID(petID), userID(userID), medID(medID), cost(cost), OwnerName(ownerName), PetName(petName), Status(status) {};;
+    Tratamiento(const int tratamientoId, const std::string &tratamiento, const std::string &date, int petID, int userID, int medID, float cost, const std::string &ownerName, const std::string &petName, const int status)
+            : tratamientoID(tratamientoId), tratamiento(tratamiento), date(date), petID(petID), userID(userID), medID(medID), cost(cost), OwnerName(ownerName), PetName(petName), Status(status) {}
 };
 
-class PetTratamiento{
+class PetTratamiento {
 public:
     int petID;
     std::string tratamiento;
@@ -68,7 +68,7 @@ public:
     float cost;
 
     PetTratamiento(int petID, const std::string &tratamiento, const std::string &date, float cost)
-            : petID(petID),  tratamiento(tratamiento), date(date), cost(cost) {}
+            : petID(petID), tratamiento(tratamiento), date(date), cost(cost) {}
 };
 
 class Factura {
@@ -83,145 +83,91 @@ public:
             : FacturaID(facturaID), OwnerName(ownerName), Date(date), Cost(cost), Status(status) {}
 };
 
-
-
 class Database {
 public:
-    Database(const char* dbFileName) : dbFileName_(dbFileName), db_(nullptr) {
-        int rc = sqlite3_open(dbFileName, &db_);
+    Database(const std::string& dbFileName) : dbFileName_(dbFileName), db_(nullptr) {
+        int rc = sqlite3_open(dbFileName.c_str(), &db_);
         if (rc) {
             std::cerr << "Error opening SQLite database: " << sqlite3_errmsg(db_) << std::endl;
         }
     }
 
-
     ~Database() {
         if (db_) {
-            sqlite3_close(db_);
+            sqlite3_close_v2(db_);
         }
     }
-    // db logic
-    // auth logic sys
-    // register users
-    bool insertUser(const string &username, const string &password, const string &salt, const string &email,
-                    const string &role, const string &phone, const string &name);
-    // login users
-    bool loginUser(const string &username, const string &password);
-    // get user JWT token
-    string getUserToken(const string &username);
+
+    // Disable copy semantics to prevent double-free of sqlite3 connection
+    Database(const Database&) = delete;
+    Database& operator=(const Database&) = delete;
+
+    // Enable move semantics
+    Database(Database&& other) noexcept : dbFileName_(std::move(other.dbFileName_)), db_(other.db_) {
+        other.db_ = nullptr;
+    }
+    Database& operator=(Database&& other) noexcept {
+        if (this != &other) {
+            if (db_) {
+                sqlite3_close_v2(db_);
+            }
+            dbFileName_ = std::move(other.dbFileName_);
+            db_ = other.db_;
+            other.db_ = nullptr;
+        }
+        return *this;
+    }
+
+    // Auth logic
+    bool insertUser(const std::string &username, const std::string &password, const std::string &salt, const std::string &email,
+                    const std::string &role, const std::string &phone, const std::string &name);
+    bool loginUser(const std::string &username, const std::string &password);
+    std::string getUserToken(const std::string &username);
 
     // Appointments logic
-
-    // new appointment
-    bool insertAppointment(const string &petname, const string &date, const string &hour, const string &service,
-                           const string &mail, const string &phone, const string &name);
-    // count appointments by user using his mail
-    int countAppointmentsByUser(const string &mail);
-
-    // count all appointments with status 0
+    bool insertAppointment(const std::string &petname, const std::string &date, const std::string &hour, const std::string &service,
+                           const std::string &mail, const std::string &phone, const std::string &name);
+    int countAppointmentsByUser(const std::string &mail);
     int countAllAppointments();
-    // count all appointments with status 1
     int countAllAppointmentsDone();
-
-    // get all information of appointments store in vector type cita
-    vector<Cita> getAppointments();
-
-    // update status of appointment
+    std::vector<Cita> getAppointments();
     bool updateAppointmentStatus(const int appointmentID);
 
-
     // Pet logic
-
-    // new pet
-    bool insertPet(const string &name, const int age, const string &type, const string &genre, const int userID);
-    // count pet by user
+    bool insertPet(const std::string &name, const int age, const std::string &type, const std::string &genre, const int userID);
     int countPetByUser(const int userID);
-
-    // get all information of user pets store in vector type pet
-    vector<Pet> getPetsByUser(const int userID);
-    // delete a pet from id
+    std::vector<Pet> getPetsByUser(const int userID);
     bool deletePet(const int petID);
-
-    // count all pets
     int countAllPets();
-    // get all information of pets store in vector type pet
-    vector<Pet> getPets();
-
-    // get Owner from petID
-    string getOwnerFromPetID(const int petID);
-    // retrieve userID from petID
+    std::vector<Pet> getPets();
+    std::string getOwnerFromPetID(const int petID);
     int getUserIDFromPetID(const int petID);
-    // update pet information Weight and Height
     bool updatePetInfo(const int petID, const int weight, const int height);
 
-
-    // users logic
-
-    // count all users
+    // Users logic
     int countAllUsers();
 
-
-    // tratamientos logic
-
-    // Insert a new Tratamiento
-    bool insertTratamiento(const string &tratamiento, const string &date, const int petID,
+    // Tratamientos logic
+    bool insertTratamiento(const std::string &tratamiento, const std::string &date, const int petID,
                            const int userID, const int medID, const float cost);
-
-    // get all information of tratamientos store in vector type tratamiento
-    vector<Tratamiento> getTratamientos();
-
-    // update status of tratamiento
+    std::vector<Tratamiento> getTratamientos();
     bool updateTratamientoStatus(const int tratamientoID);
 
-    // facturas logic
-
-    // Insert a new Factura
-    /*
-     * TratamientoID
-        TotalCost
-        DateOfEmision
-        OwnerID
-     */
-    bool insertFactura(const int tratamientoID, const float totalCost, const string &date, const int ownerID);
-
-    // get all information of facturas store in vector type factura
-    vector<Factura> getFacturas();
-
-    // update factura status
+    // Facturas logic
+    bool insertFactura(const int tratamientoID, const float totalCost, const std::string &date, const int ownerID);
+    std::vector<Factura> getFacturas();
     bool updateFacturaStatus(const int facturaID);
 
-
-    // modulo de registrar ventas
-    bool insertVenta(const string &date, const string &concepto, const int userID,
+    // Ventas logic
+    bool insertVenta(const std::string &date, const std::string &concepto, const int userID,
                      const float monto, const float cambio, const float recibido);
-
-    // total of ventas of the day
-    float totalVentas(const string &date);
-    // count ventas of day
-    int countVentas(const string &date);
-
-    // get tratamiento of pet by pet id
-    vector<PetTratamiento> getTratamientosByPetID(const int petID);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    float totalVentas(const std::string &date);
+    int countVentas(const std::string &date);
+    std::vector<PetTratamiento> getTratamientosByPetID(const int petID);
 
 private:
-    const char* dbFileName_;
+    std::string dbFileName_;
     sqlite3* db_;
 };
-
 
 #endif //BACKEND_DATABASE_H

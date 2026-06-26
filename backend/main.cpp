@@ -80,6 +80,13 @@ int main()
         std::string phone = json_payload["phone"].s();
         std::string password = json_payload["password"].s();
 
+        if (name.empty() || user.empty() || mail.empty() || phone.empty() || password.empty()) {
+            return crow::response(400, "All fields are required and cannot be empty.");
+        }
+        if (password.length() < 6) {
+            return crow::response(400, "Password must be at least 6 characters.");
+        }
+
         // auth logic
         // generate a random salt
         std::string salt = generate_salt();
@@ -106,18 +113,6 @@ int main()
         return crow::response(200, res);
     });
 
-    CROW_ROUTE(app, "/auth/login").methods(crow::HTTPMethod::OPTIONS)
-            ([](const crow::request &req) {
-                // Respond to preflight request with appropriate CORS headers
-                crow::response response;
-                response.set_header("Access-Control-Allow-Origin", "*");
-                response.set_header("Access-Control-Allow-Methods", "POST, GET");
-                response.set_header("Access-Control-Allow-Headers", "X-Custom-Header");
-                return response;
-            });
-
-
-
     CROW_ROUTE(app, "/auth/login")
             .methods(crow::HTTPMethod::POST)
                     ([](const crow::request &req){
@@ -139,12 +134,7 @@ int main()
                             res["status"] = "Unauthorized";
                             res["msg"] = "Authentication failed";
 
-                            crow::response response(401, "Unauthorized");
-                            response.set_header("Access-Control-Allow-Origin", "*");
-                            response.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-                            response.set_header("Access-Control-Allow-Headers", "Content-Type, X-Custom-Header");
-
-                            return response;
+                            return crow::response(401, res);
                         }
 
                         // generate a JWT token
@@ -155,12 +145,7 @@ int main()
                         res["msg"] = "User logged in successfully";
                         res["token"] = token;
 
-                        crow::response response(200, res);
-                        response.set_header("Access-Control-Allow-Origin", "*");
-                        response.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-                        response.set_header("Access-Control-Allow-Headers", "Content-Type, X-Custom-Header");
-
-                        return response;
+                        return crow::response(200, res);
                     });
 
     // route for get available hours for the appointment
@@ -211,6 +196,10 @@ int main()
                         std::string email = json["email"].s();
                         std::string ownerName = json["ownerName"].s();
                         std::string service = json["service"].s();
+
+                        if (hour.empty() || date.empty() || petName.empty() || phone.empty() || email.empty() || ownerName.empty() || service.empty()) {
+                            return crow::response(400, "All fields are required and cannot be empty.");
+                        }
 
                         // Check if the selected hour is available
                         std::string selectedHour = date + " " + hour;
