@@ -28,8 +28,7 @@ MyVet is a comprehensive veterinary administration system designed to streamline
 ## Installation
 
 ### Prerequisites
-- **Node.js** (for frontend)
-- **npm** or **yarn** (for frontend package management)
+- **Bun** (for frontend development and package management)
 - **C++ Compiler** (compatible with C++11 or later)
 - **SQLite** (database)
 
@@ -58,11 +57,11 @@ MyVet is a comprehensive veterinary administration system designed to streamline
     ```
 2. Install dependencies:
     ```bash
-    npm install
+    bun install
     ```
 3. Start the frontend development server:
     ```bash
-    npm run dev
+    bun run dev
     ```
 
 .

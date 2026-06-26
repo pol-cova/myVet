@@ -7,3 +7,8 @@
 /backend/.env
 /backend/utils/
 /backend/auth/
+
+# Editor and OS files
+.idea/
+.DS_Store
+**/.DS_Store
