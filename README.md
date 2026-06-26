@@ -73,6 +73,29 @@ Simple, Fast, and Secure Veterinary Administration System. Designed to streamlin
 
 ---
 
+### 🐳 Running with Docker Compose (Easiest Method)
+
+If you have Docker installed, you can build and run both the C++ API server and the React frontend inside containers with a single command. This handles all dependencies (Asio, CMake, Node, SQLite, Nginx, etc.) automatically:
+
+1. **Launch the startup script:**
+   ```bash
+   ./start.sh
+   ```
+   *Or directly run:* `docker compose up --build -d`
+
+2. **Access the application:**
+   - **Frontend UI:** `http://localhost` (port 80)
+   - **Backend API:** `http://localhost:18080` (port 18080)
+
+3. **Shutdown the services:**
+   ```bash
+   docker compose down
+   ```
+
+---
+
+### Manual Local Setup (Alternative)
+
 ### 1. Backend Setup
 
 1. **Navigate to the backend directory:**
